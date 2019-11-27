@@ -1,16 +1,17 @@
 import React from 'react';
 import Dropdown from 'react-dropdown';
+import { Link } from 'react-router-dom';
 
 import './Lobby.css';
 import 'react-dropdown/style.css'
 import { exportDefaultSpecifier } from '@babel/types';
 
-class Lobby extends React.Component{
-    constructor(props){
+class Lobby extends React.Component {
+    constructor(props) {
         super(props);
 
         this.state = {
-            sort_options: [{value: 'id', label: 'Id'}, {value: 'host', label: 'Host'}, {value: 'availability', label: 'Availability'}],
+            sort_options: [{ value: 'id', label: 'Id' }, { value: 'host', label: 'Host' }, { value: 'availability', label: 'Availability' }],
             show_only_available: false,
             host_filter: '',
             sort_by: 'id',
@@ -23,26 +24,26 @@ class Lobby extends React.Component{
         this.updateSortOption = this.updateSortOption.bind(this);
     }
 
-    updateHostFilter(e){
-        this.setState({host_filter: e.target.value.trim()});
+    updateHostFilter(e) {
+        this.setState({ host_filter: e.target.value.trim() });
         setTimeout(this.runFilters, 100);
     }
 
-    toggleAvailabilityFilter(){
-        this.setState(state => ({show_only_available: !(state.show_only_available)}));
+    toggleAvailabilityFilter() {
+        this.setState(state => ({ show_only_available: !(state.show_only_available) }));
         setTimeout(this.runFilters, 100);
     }
 
-    updateSortOption(e){
-        this.setState({sort_by: e.value});
-        setTimeout(()=>{console.log(this.state.sort_by);this.runFilters()}, 100);
+    updateSortOption(e) {
+        this.setState({ sort_by: e.value });
+        setTimeout(() => { console.log(this.state.sort_by); this.runFilters() }, 100);
     }
 
-    compareById(el1, el2){
-        if(el1.id > el2.id){
+    compareById(el1, el2) {
+        if (el1.id > el2.id) {
             return 1
         }
-        else if(el1.id < el2.id){
+        else if (el1.id < el2.id) {
             return -1
         }
         else {
@@ -50,11 +51,11 @@ class Lobby extends React.Component{
         }
     }
 
-    compareByHost(el1, el2){
-        if(el1.host > el2.host){
+    compareByHost(el1, el2) {
+        if (el1.host > el2.host) {
             return 1
         }
-        else if(el1.host < el2.host){
+        else if (el1.host < el2.host) {
             return -1
         }
         else {
@@ -62,42 +63,42 @@ class Lobby extends React.Component{
         }
     }
 
-    compareByAvailability(el1, el2){
-        if(el1.availability > el2.availability){
+    compareByAvailability(el1, el2) {
+        if (el1.availability > el2.availability) {
             return 1
         }
-        else if(el1.availability < el2.availability){
+        else if (el1.availability < el2.availability) {
             return -1
         }
         else {
             return 0
         }
     }
-    
 
-    runFilters(){
+
+    runFilters() {
         let temp = [...this.props.lobby];
-        if(this.state.show_only_available){
+        if (this.state.show_only_available) {
             temp = temp.filter(game => game.availability);
         }
-        if(this.state.host_filter.length > 0){
+        if (this.state.host_filter.length > 0) {
             temp = temp.filter(game => game.host.includes(this.state.host_filter))
         }
-        if(this.state.sort_by === 'id'){
+        if (this.state.sort_by === 'id') {
             temp = temp.sort(this.compareById);
         }
-        if(this.state.sort_by === 'host'){
+        if (this.state.sort_by === 'host') {
             temp = temp.sort(this.compareByHost);
         }
-        if(this.state.sort_by === 'availability'){
+        if (this.state.sort_by === 'availability') {
             temp = temp.sort(this.compareByAvailability);
         }
-        this.setState(state => ({games_to_show: temp}));
+        this.setState(state => ({ games_to_show: temp }));
     }
 
 
-    render(){
-        return(
+    render() {
+        return (
             <div className='wrapper lobby card blue-grey darken-1 z-depth-5'>
                 <h3>Lobby</h3>
                 <div className='lobby-body wrapper'>
@@ -116,7 +117,7 @@ class Lobby extends React.Component{
                                     <td>{game.id}</td>
                                     <td><em>{game.host}</em></td>
                                     <td>{game.availability ? <div className='available'></div> : <div className='inprogress'></div>}</td>
-                                    <td>{game.availability ? <a href='/Game' className="waves-effect waves-light btn" >Join</a> : <a className="waves-effect waves-light btn" disabled>Join</a>}</td>
+                                    <td>{game.availability ? <Link to='/game' className="waves-effect waves-light btn" >Join</Link> : <a className="waves-effect waves-light btn" disabled>Join</a>}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -131,10 +132,10 @@ class Lobby extends React.Component{
                     <div className='col s6'>
                         <form>
                             <p>
-                            <label>
-                                <input type="checkbox" className='filled-in' className='filter-box' checked={this.state.show_only_available} onChange={this.toggleAvailabilityFilter}/>
-                                <span className='filter-text'>Show Only Available Games</span>
-                            </label>
+                                <label>
+                                    <input type="checkbox" className='filled-in' className='filter-box' checked={this.state.show_only_available} onChange={this.toggleAvailabilityFilter} />
+                                    <span className='filter-text'>Show Only Available Games</span>
+                                </label>
                             </p>
                             <input type='text' value={this.state.host_filter} placeholder='Filter by Host' className='center white-text' onChange={this.updateHostFilter} />
                         </form>

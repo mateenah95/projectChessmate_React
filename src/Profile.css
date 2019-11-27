@@ -30,7 +30,14 @@
 
 #playButton {
     height:100px;
-    width: 80%;
+    width: 40%;
+    font-size: 36px;
+    text-align: centre;
+}
+
+#friendButton {
+    height:100px;
+    width: 40%;
     font-size: 36px;
     text-align: centre;
 }
