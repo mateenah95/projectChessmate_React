@@ -4,7 +4,7 @@ import Chess from "chess.js";
 import Chessboard from "chessboardjsx";
 
 const io = require('socket.io-client');
-const socket = io.connect('http://localhost:5001/');
+const socket = io.connect('http://chessmate-api.herokuapp.com:5001/');
 
 let side_ = 'w';
 
@@ -24,13 +24,13 @@ class Game extends Component {
     };
 
     updateBoard = () => {
-      this.setState({
-          fen: position,
-          history: this.game.history({ verbose: true }),
-          pieceSquare: ""
-      });
+        this.setState({
+            fen: position,
+            history: this.game.history({ verbose: true }),
+            pieceSquare: ""
+        });
 
-      this.game.move(move_);
+        this.game.move(move_);
     };
 
     componentDidMount() {
@@ -51,192 +51,193 @@ class Game extends Component {
 
     // keep clicked square style and remove hint squares
     removeHighlightSquare = () => {
-    this.setState(({ pieceSquare, history }) => ({
-    squareStyles: squareStyling({ pieceSquare, history })}));
+        this.setState(({ pieceSquare, history }) => ({
+            squareStyles: squareStyling({ pieceSquare, history })
+        }));
     };
 
-// show possible moves
-highlightSquare = (sourceSquare, squaresToHighlight) => {
-    const highlightStyles = [sourceSquare, ...squaresToHighlight].reduce(
-        (a, c) => {
-        return {
-            ...squareStyling({
-                history: this.state.history,
-                pieceSquare: this.state.pieceSquare
-            }),
-            ...a,
-            ...{
-                [c]: {
-                    background:
-                        "radial-gradient(circle, #fffc00 36%, transparent 40%)",
-                    borderRadius: "50%"
-                }
-            }
-        };
-},
-    {}
-);
+    // show possible moves
+    highlightSquare = (sourceSquare, squaresToHighlight) => {
+        const highlightStyles = [sourceSquare, ...squaresToHighlight].reduce(
+            (a, c) => {
+                return {
+                    ...squareStyling({
+                        history: this.state.history,
+                        pieceSquare: this.state.pieceSquare
+                    }),
+                    ...a,
+                    ...{
+                        [c]: {
+                            background:
+                                "radial-gradient(circle, #fffc00 36%, transparent 40%)",
+                            borderRadius: "50%"
+                        }
+                    }
+                };
+            },
+            {}
+        );
 
-    this.setState(({ squareStyles }) => ({
-        squareStyles: { ...squareStyles, ...highlightStyles }
-    }));
-};
+        this.setState(({ squareStyles }) => ({
+            squareStyles: { ...squareStyles, ...highlightStyles }
+        }));
+    };
 
-onDrop = ({ sourceSquare, targetSquare }) => {
-    if (this.game.turn() !== side_)
-        return;
-    // see if the move is legal
-    let move = this.game.move({
-        from: sourceSquare,
-        to: targetSquare,
-        promotion: "q" // always promote to a queen for example simplicity
-    });
+    onDrop = ({ sourceSquare, targetSquare }) => {
+        if (this.game.turn() !== side_)
+            return;
+        // see if the move is legal
+        let move = this.game.move({
+            from: sourceSquare,
+            to: targetSquare,
+            promotion: "q" // always promote to a queen for example simplicity
+        });
 
-    // illegal move
-    if (move === null) return;
-    this.setState(({ history, pieceSquare }) => ({
-        fen: this.game.fen(),
-        history: this.game.history({ verbose: true }),
-        squareStyles: squareStyling({ pieceSquare, history })
-    }));
-    socket.emit('move', move);
-    socket.emit('fen', this.game.fen());
+        // illegal move
+        if (move === null) return;
+        this.setState(({ history, pieceSquare }) => ({
+            fen: this.game.fen(),
+            history: this.game.history({ verbose: true }),
+            squareStyles: squareStyling({ pieceSquare, history })
+        }));
+        socket.emit('move', move);
+        socket.emit('fen', this.game.fen());
 
-    if (this.game.in_draw() || this.game.in_stalemate()){
-        console.log("draw")
+        if (this.game.in_draw() || this.game.in_stalemate()) {
+            console.log("draw")
+        }
+        else if (this.game.game_over() && this.game.turn() === 'b') {
+            console.log("white won");
+        }
+        else if (this.game.game_over() && this.game.turn() === 'w') {
+            console.log("white won");
+        }
+    };
+
+    onMouseOverSquare = square => {
+
+    };
+
+    onDragOverSquare = square => { };
+
+    onSquareClick = square => {
+        if (this.game.turn() !== side_)
+            return;
+
+        let moves = this.game.moves({
+            square: square,
+            verbose: true
+        });
+        let squaresToHighlight = [];
+        for (let i = 0; i < moves.length; i++) {
+            squaresToHighlight.push(moves[i].to);
+        }
+
+
+        this.setState(({ history }) => ({
+            squareStyles: squareStyling({ pieceSquare: square, history }),
+            pieceSquare: square
+        }));
+
+        let move = this.game.move({
+            from: this.state.pieceSquare,
+            to: square,
+            promotion: "q" // always promote to a queen for example simplicity
+        });
+
+        if (moves.length !== 0)
+            this.highlightSquare(square, squaresToHighlight);
+        // illegal move
+        if (move === null) return;
+
+        this.setState({
+            fen: this.game.fen(),
+            history: this.game.history({ verbose: true }),
+            pieceSquare: ""
+        });
+
+
+        socket.emit('move', move);
+        socket.emit('fen', this.game.fen());
+
+        this.removeHighlightSquare();
+
+
+        if (this.game.in_draw() || this.game.in_stalemate()) {
+            console.log("draw")
+        }
+        else if (this.game.game_over() && this.game.turn() === 'b') {
+            console.log("white won");
+        }
+        else if (this.game.game_over() && this.game.turn() === 'w') {
+            console.log("white won");
+        }
+    };
+
+    onSquareRightClick = square => {
+        console.log(side_)
+        // this.setState({
+        //     fen: position,
+        //     history: this.game.history({ verbose: true }),
+        //     pieceSquare: ""
+        // });
+        //
+        // this.game.move(move_)
+    };
+
+
+    render() {
+        const { fen, dropSquareStyle, squareStyles } = this.state;
+        return this.props.children({
+            squareStyles,
+            position: fen,
+            onMouseOverSquare: this.onMouseOverSquare,
+            onMouseOutSquare: this.onMouseOutSquare,
+            onDrop: this.onDrop,
+            dropSquareStyle,
+            onDragOverSquare: this.onDragOverSquare,
+            onSquareClick: this.onSquareClick,
+            onSquareRightClick: this.onSquareRightClick
+        });
     }
-    else if (this.game.game_over() && this.game.turn() === 'b'){
-        console.log("white won");
-    }
-    else if (this.game.game_over() && this.game.turn() === 'w'){
-        console.log("white won");
-    }
-};
-
-onMouseOverSquare = square => {
-
-};
-
-onDragOverSquare = square => {};
-
-onSquareClick = square => {
-    if (this.game.turn() !== side_)
-        return;
-
-    let moves = this.game.moves({
-        square: square,
-        verbose: true
-    });
-    let squaresToHighlight = [];
-    for (let i = 0; i < moves.length; i++) {
-        squaresToHighlight.push(moves[i].to);
-    }
-
-
-    this.setState(({ history }) => ({
-        squareStyles: squareStyling({ pieceSquare: square, history }),
-        pieceSquare: square
-    }));
-
-    let move = this.game.move({
-        from: this.state.pieceSquare,
-        to: square,
-        promotion: "q" // always promote to a queen for example simplicity
-    });
-
-    if (moves.length !== 0 )
-        this.highlightSquare(square, squaresToHighlight);
-    // illegal move
-    if (move === null) return;
-
-    this.setState({
-        fen: this.game.fen(),
-        history: this.game.history({ verbose: true }),
-        pieceSquare: ""
-    });
-
-
-    socket.emit('move', move);
-    socket.emit('fen', this.game.fen());
-
-    this.removeHighlightSquare();
-
-
-    if (this.game.in_draw() || this.game.in_stalemate()){
-        console.log("draw")
-    }
-    else if (this.game.game_over() && this.game.turn() === 'b'){
-        console.log("white won");
-    }
-    else if (this.game.game_over() && this.game.turn() === 'w'){
-        console.log("white won");
-    }
-};
-
-onSquareRightClick = square =>{
-    console.log(side_)
-    // this.setState({
-    //     fen: position,
-    //     history: this.game.history({ verbose: true }),
-    //     pieceSquare: ""
-    // });
-    //
-    // this.game.move(move_)
-};
-
-
-render() {
-    const { fen, dropSquareStyle, squareStyles } = this.state;
-    return this.props.children({
-        squareStyles,
-        position: fen,
-        onMouseOverSquare: this.onMouseOverSquare,
-        onMouseOutSquare: this.onMouseOutSquare,
-        onDrop: this.onDrop,
-        dropSquareStyle,
-        onDragOverSquare: this.onDragOverSquare,
-        onSquareClick: this.onSquareClick,
-        onSquareRightClick: this.onSquareRightClick
-    });
-}
 }
 
 export default function WithMoveValidation() {
     return (
-    <div>
-    <Game>
-    {({
-        position,
-        onDrop,
-        onMouseOverSquare,
-        onMouseOutSquare,
-        squareStyles,
-        dropSquareStyle,
-        onDragOverSquare,
-        onSquareClick,
-        onSquareRightClick
-    }) => (
-    <Chessboard
-    id="humanVsHuman"
-    width={600}
-    position={position}
-    onDrop={onDrop}
-    onMouseOverSquare={onMouseOverSquare}
-    onMouseOutSquare={onMouseOutSquare}
-    boardStyle={{
-        borderRadius: "5px",
-            boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
-    }}
-    squareStyles={squareStyles}
-    dropSquareStyle={dropSquareStyle}
-    onDragOverSquare={onDragOverSquare}
-    onSquareClick={onSquareClick}
-    onSquareRightClick={onSquareRightClick}
-    />
-)}
-</Game>
-    </div>
-);
+        <div>
+            <Game>
+                {({
+                    position,
+                    onDrop,
+                    onMouseOverSquare,
+                    onMouseOutSquare,
+                    squareStyles,
+                    dropSquareStyle,
+                    onDragOverSquare,
+                    onSquareClick,
+                    onSquareRightClick
+                }) => (
+                        <Chessboard
+                            id="humanVsHuman"
+                            width={600}
+                            position={position}
+                            onDrop={onDrop}
+                            onMouseOverSquare={onMouseOverSquare}
+                            onMouseOutSquare={onMouseOutSquare}
+                            boardStyle={{
+                                borderRadius: "5px",
+                                boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
+                            }}
+                            squareStyles={squareStyles}
+                            dropSquareStyle={dropSquareStyle}
+                            onDragOverSquare={onDragOverSquare}
+                            onSquareClick={onSquareClick}
+                            onSquareRightClick={onSquareRightClick}
+                        />
+                    )}
+            </Game>
+        </div>
+    );
 }
 
 const squareStyling = ({ pieceSquare, history }) => {
