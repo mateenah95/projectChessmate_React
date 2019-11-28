@@ -110,6 +110,13 @@ class App extends React.Component {
         this.resetSolo = this.resetSolo.bind(this);
         this.changeName = this.changeName.bind(this);
     }
+    UNSAFE_componentWillMount() {
+        window.addEventListener('unload', () => {
+            localStorage.setItem('chessmateUser', JSON.stringify(this.state.user))
+        })
+        // alert(localStorage.getItem('chessmateUser'));
+        localStorage.getItem('chessmateUser') && this.setState(state => ({ user: JSON.parse(localStorage.getItem('chessmateUser')), lobby: TEST_LOBBY }));
+    }
 
     login(admn) {
         this.setState(state => ({ user: admn, lobby: TEST_LOBBY }))
