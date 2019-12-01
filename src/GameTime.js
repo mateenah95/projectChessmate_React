@@ -1,18 +1,11 @@
 import React from 'react';
-import Timer from 'timer';
+import Timer from 'timer.js';
 
 
 class GameInfo extends React.Component {
     constructor(props, time) {
         super(props);
         this.time = time;
-
-        this.start_w = this.start_w.bind(this);
-        this.stop_w = this.stop_w.bind(this);
-        this.start_b = this.start_b.bind(this);
-        this.stop_b = this.stop_b.bind(this);
-
-
     }
 
     w_remaining = -1;
