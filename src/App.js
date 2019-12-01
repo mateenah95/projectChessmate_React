@@ -118,7 +118,7 @@ class App extends React.Component {
     }
 
     updateLobby() {
-        Axios.get('http://chessmate-api.herokuapp.com/games')
+        Axios.get('https://chessmate-api.herokuapp.com/games')
             .then(response => this.setState({ lobby: [...response.data] }))
             .catch(error => this.setState({ lobby: [] }))
     }
