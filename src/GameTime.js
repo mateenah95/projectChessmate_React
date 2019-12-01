@@ -1,5 +1,5 @@
 import React from 'react';
-import Timer from 'timer.js';
+import Timer from 'timer';
 
 
 class GameInfo extends React.Component{
