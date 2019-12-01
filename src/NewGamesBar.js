@@ -57,6 +57,13 @@ class NewGamesBar extends React.Component {
                 console.log(response.data);
                 M.toast({ html: `New ${this.state.color.toUpperCase()} Game Created Successfully!` });
                 this.clear();
+                const el = document.getElementById('game-lnk');
+                const theclick = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                const clicked = el.dispatchEvent(theclick);
             }).catch(error => {
                 console.error(error);
                 M.toast({ html: `Some Error Occured! Could Not Create New Game!` });

@@ -119,7 +119,16 @@ class Lobby extends React.Component {
         const requestURL = `https://chessmate-api.herokuapp.com/game/join/${gameid}`;
         // console.log(requestURL)
         Axios.post(requestURL, { username: this.props.username })
-            .then(response => console.log(response.data))
+            .then(response => {
+                console.log(response.data);
+                const el = document.getElementById('game-lnk');
+                const theclick = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                const clicked = el.dispatchEvent(theclick);
+            })
             .catch(error => console.log(error))
     }
 
