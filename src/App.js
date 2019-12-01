@@ -139,7 +139,7 @@ class App extends React.Component {
 
     addFriend(playerName) {
         if (!(playerName === this.state.user.username)) {
-            Axios.post('http://chessmate-api.herokuapp.com/player', {
+            Axios.post('https://chessmate-api.herokuapp.com/player', {
                 myid: this.state.user._id,
                 name: playerName
             }).then(response => {
@@ -147,7 +147,7 @@ class App extends React.Component {
                     alert(response.data.message)
                 } else {
                     //console.log(response.data._id)
-                    Axios.post('http://chessmate-api.herokuapp.com/addFriend', {
+                    Axios.post('https://chessmate-api.herokuapp.com/addFriend', {
                         myid: this.state.user._id,
                         id: response.data._id
                     }).then(response2 => {
@@ -168,7 +168,7 @@ class App extends React.Component {
 
     hideShowHist() {
         const new_hide = !this.state.user.matchHistoryView;
-        Axios.patch('http://chessmate-api.herokuapp.com/matchHist', {
+        Axios.patch('https://chessmate-api.herokuapp.com/matchHist', {
             myid: this.state.user._id,
             hide: new_hide
         }).then(response => {
@@ -188,7 +188,7 @@ class App extends React.Component {
     changeName(newName) {
         let flag = false
         if (newName) {
-            Axios.patch('http://chessmate-api.herokuapp.com/changeName', {
+            Axios.patch('https://chessmate-api.herokuapp.com/changeName', {
                 myid: this.state.user._id,
                 username: newName
             }).then(response => {
@@ -200,7 +200,7 @@ class App extends React.Component {
                     }));
                     if (!this.state.user.badges.includes(Crown)) {
                         console.log("should add crown")
-                        Axios.patch('http://chessmate-api.herokuapp.com/addBadge', {
+                        Axios.patch('https://chessmate-api.herokuapp.com/addBadge', {
                             myid: this.state.user._id,
                             badge: Crown
                         }).then(response => {
@@ -225,7 +225,7 @@ class App extends React.Component {
     }
 
     resetSolo() {
-        Axios.patch('http://chessmate-api.herokuapp.com/resetStats', {
+        Axios.patch('https://chessmate-api.herokuapp.com/resetStats', {
             myid: this.state.user._id,
             solo: true
         }).then(response => {
@@ -243,7 +243,7 @@ class App extends React.Component {
     }
 
     resetMulti() {
-        Axios.patch('http://chessmate-api.herokuapp.com/resetStats', {
+        Axios.patch('https://chessmate-api.herokuapp.com/resetStats', {
             myid: this.state.user._id,
             solo: false
         }).then(response => {
