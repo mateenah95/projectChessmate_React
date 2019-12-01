@@ -89,7 +89,7 @@ class Lobby extends React.Component {
     runFilters() {
         let temp = [];
 
-        Axios.get('http://chessmate-api.herokuapp.com/games')
+        Axios.get('https://chessmate-api.herokuapp.com/games')
             .then(response => {
                 // this.setState({ games_to_show: [...response.data] })
                 temp = response.data;
@@ -116,7 +116,7 @@ class Lobby extends React.Component {
 
     joinGame(e) {
         const gameid = e.target.getAttribute('gameid');
-        const requestURL = `http://chessmate-api.herokuapp.com/game/join/${gameid}`;
+        const requestURL = `https://chessmate-api.herokuapp.com/game/join/${gameid}`;
         // console.log(requestURL)
         Axios.post(requestURL, { username: this.props.username })
             .then(response => console.log(response.data))
