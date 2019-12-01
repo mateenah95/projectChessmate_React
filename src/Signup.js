@@ -58,7 +58,7 @@ class Signup extends React.Component {
         if (this.state.username.trim().length > 0) {
             if (this.state.password.trim() === this.state.confirmPassword.trim()) {
                 if (this.state.password.trim().length >= 8) {
-                    axios.post('http://localhost:5000/signup', {
+                    axios.post('http://chessmate-api.herokuapp.com/signup', {
                         username: this.state.username,
                         password: this.state.confirmPassword,
                         displayPicture: this.state.displayPicture

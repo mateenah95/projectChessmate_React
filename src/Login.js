@@ -39,7 +39,7 @@ class Login extends React.Component {
     }
 
     login() {
-        Axios.post('http://localhost:5000/login', {
+        Axios.post('http://chessmate-api.herokuapp.com/login', {
             username: this.state.username,
             password: this.state.password
         }).then(response => {

@@ -50,7 +50,7 @@ class NewGamesBar extends React.Component {
             this.setState({ error: 'Please select a game color!' });
         }
         else {
-            Axios.post('http://localhost:5000/game/create', {
+            Axios.post('http://chessmate-api.herokuapp.com/game/create', {
                 username: this.props.username,
                 color: this.state.color === 'white' ? 'w' : 'b'
             }).then(response => {
