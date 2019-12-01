@@ -7,7 +7,7 @@ import GameTime from "./GameTime"
 import GameMoves from "./GameMoves"
 
 const io = require('socket.io-client');
-const socket = io.connect('http://localhost:5001/');
+const socket = io.connect('https://chessmate-api.herokuapp.com/');
 
 const game_time = new GameTime();
 const game_moves = new GameMoves();
@@ -43,16 +43,16 @@ class Game extends Component {
     };
 
     componentDidMount() {
-        Axios.post('http://localhost:5000/game/create', {
-            username: "Bob",
-            color: "w"
-        }).then(response => {
-            game_id = response.data._id
-            console.log(game_id)
-            console.log(response)
-        }).catch(error => {
-            console.error(error)
-        });
+        // Axios.post('http://localhost:5000/game/create', {
+        //     username: "Bob",
+        //     color: "w"
+        // }).then(response => {
+        //     game_id = response.data._id
+        //     console.log(game_id)
+        //     console.log(response)
+        // }).catch(error => {
+        //     console.error(error)
+        // });
         game_time.init_clocks(time);
         game_time.start_w();
         this.game = new Chess();
