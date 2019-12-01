@@ -5,16 +5,16 @@ import NewGamesBar from './NewGamesBar';
 
 import './GamesBar.css';
 
-class GamesBar extends React.Component{
-    constructor(props){
+class GamesBar extends React.Component {
+    constructor(props) {
         super(props);
     }
 
-    render(){
+    render() {
         return (
             <div>
-                <Lobby lobby={this.props.lobby}/>
-                <NewGamesBar />    
+                <Lobby username={this.props.username} lobby={this.props.lobby} />
+                <NewGamesBar username={this.props.username} />
             </div>
         )
     }

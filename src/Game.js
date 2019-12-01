@@ -2,17 +2,26 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Chess from "chess.js";
 import Chessboard from "chessboardjsx";
+import Axios from 'axios';
+import GameTime from "./GameTime"
+import GameMoves from "./GameMoves"
 
 const io = require('socket.io-client');
-const socket = io.connect('http://chessmate-api.herokuapp.com:5001/');
+const socket = io.connect('http://localhost:5001/');
 
-let side_ = 'w';
+const game_time = new GameTime();
+const game_moves = new GameMoves();
+
+let side_ = '';
+let orientation = 'white';
 
 let move_ = '';
 let position = 'start';
+let game_id = "";
+const time = 5 * 60;
+const testing = true;
 
 class Game extends Component {
-
     static propTypes = { children: PropTypes.func };
     state = {
         fen: "start",
@@ -34,6 +43,18 @@ class Game extends Component {
     };
 
     componentDidMount() {
+        Axios.post('http://localhost:5000/game/create', {
+            username: "Bob",
+            color: "w"
+        }).then(response => {
+            game_id = response.data._id
+            console.log(game_id)
+            console.log(response)
+        }).catch(error => {
+            console.error(error)
+        });
+        game_time.init_clocks(time);
+        game_time.start_w();
         this.game = new Chess();
         socket.on('fen', function (fen) {
             position = fen;
@@ -44,7 +65,16 @@ class Game extends Component {
             this.updateBoard();
         }.bind(this));
         socket.on('side', function (side) {
+            console.log(side);
             side_ = side;
+            if (side_ === 'w') {
+                orientation = 'white';
+            } else {
+                orientation = 'black';
+            }
+            this.updateBoard();
+            game_time.init_clocks(time);
+            game_time.start_w();
         }.bind(this));
     }
 
@@ -103,6 +133,17 @@ class Game extends Component {
         socket.emit('move', move);
         socket.emit('fen', this.game.fen());
 
+        const history = this.state.history;
+        history.push(move);
+        game_moves.updateMoves(history);
+        if (this.game.turn() === 'b') {
+            game_time.start_b();
+            game_time.stop_w();
+        } else if (this.game.turn() === 'w') {
+            game_time.start_w();
+            game_time.stop_b();
+        }
+
         if (this.game.in_draw() || this.game.in_stalemate()) {
             console.log("draw")
         }
@@ -121,9 +162,8 @@ class Game extends Component {
     onDragOverSquare = square => { };
 
     onSquareClick = square => {
-        if (this.game.turn() !== side_)
+        if (this.game.turn() !== side_ && !testing)
             return;
-
         let moves = this.game.moves({
             square: square,
             verbose: true
@@ -161,7 +201,16 @@ class Game extends Component {
         socket.emit('fen', this.game.fen());
 
         this.removeHighlightSquare();
-
+        const history = this.state.history;
+        history.push(move);
+        game_moves.updateMoves(history);
+        if (this.game.turn() === 'b') {
+            game_time.start_b();
+            game_time.stop_w();
+        } else if (this.game.turn() === 'w') {
+            game_time.start_w();
+            game_time.stop_b();
+        }
 
         if (this.game.in_draw() || this.game.in_stalemate()) {
             console.log("draw")
@@ -172,17 +221,20 @@ class Game extends Component {
         else if (this.game.game_over() && this.game.turn() === 'w') {
             console.log("white won");
         }
+
     };
 
     onSquareRightClick = square => {
-        console.log(side_)
-        // this.setState({
-        //     fen: position,
-        //     history: this.game.history({ verbose: true }),
-        //     pieceSquare: ""
+        // Axios.post('http://localhost:5000/game/join/' + game_id, {
+        //     username: "Jeb"
+        // }).then(response => {
+        //     console.log(game_id);
+        //     console.log(response)
+        // }).catch(error => {
+        //     console.error(error)
         // });
-        //
-        // this.game.move(move_)
+        game_time.start_w();
+
     };
 
 
@@ -220,6 +272,7 @@ export default function WithMoveValidation() {
                         <Chessboard
                             id="humanVsHuman"
                             width={600}
+                            orientation={orientation}
                             position={position}
                             onDrop={onDrop}
                             onMouseOverSquare={onMouseOverSquare}

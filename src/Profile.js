@@ -8,14 +8,22 @@ class Profile extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            username: ''
+            username: '',
+            otherplayer: ''
         }
         this.updateUsername = this.updateUsername.bind(this);
+        this.updateOtherUsername = this.updateOtherUsername.bind(this);
     }
 
     updateUsername(e){
         this.setState({
             username: e.target.value
+        })
+    }
+
+    updateOtherUsername(e){
+        this.setState({
+            otherplayer: e.target.value
         })
     }
 
@@ -29,12 +37,14 @@ class Profile extends React.Component{
                     </div>
                     <div id='GameStuff' className='col s6'>
                         <div className='row wrapper card blue-grey darken-1'>
+                            <input type="text" className='row' id="otherusername" onChange={this.updateOtherUsername} placeholder="Enter players username here" value={this.state.otherplayer}/>
+                            <br />
                             <button id='playButton' className="waves-effect waves-light btn space-around"> Request to Play</button>
-                            <button id='friendButton' className="waves-effect waves-light btn space-around">Add Friend</button>
+                            <button onClick={() => this.props.addFriend(this.state.otherplayer)} id='friendButton' className="waves-effect waves-light btn space-around">Add Friend</button>
                         </div>
                         <Badges badges={this.props.user.badges}/>
                         <FriendsList friends={this.props.user.friends}/>
-                        <MatchHistory matches={this.props.user.matchHistory}/> 
+                        {this.props.user.matchHistoryView ? <MatchHistory matches={this.props.user.matchHistory}/> : (null)} 
                     </div>
                 </div>
                 <div id='ChangeProfileInfo' className='row wrapper card blue-grey darken-1'>

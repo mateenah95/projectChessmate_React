@@ -25,6 +25,7 @@ const Router = (props) => {
     const resetMulti = props.resetMulti;
     const resetSolo = props.resetSolo;
     const changeName = props.changeName;
+    const addFriend = props.addFriend;
 
     return (
         <BrowserRouter>
@@ -36,7 +37,7 @@ const Router = (props) => {
                 <Route path='/lobby' render={() => <Lobby user={user} lobby={lobby} logout={logout} />} />
                 <Route path='/leaderboard' render={() => <Leaderboard user={user} logout={logout} />} />
                 <Route path='/game' render={() => <Game user={user} logout={logout} />} />
-                <Route path='/profile' render={() => <ProfilePage user={user} logout={logout} 
+                <Route path='/profile' render={() => <ProfilePage user={user} logout={logout} addFriend={addFriend}
                     hideShowHist={hideShowHist} resetMulti={resetMulti} resetSolo={resetSolo} changeName={changeName} />} />
                 <Route path='/' exact render={() => <HomePage user={user} logout={logout} />} />
                 <Route component={ErrorPage} />

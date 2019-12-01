@@ -93,29 +93,34 @@ class App extends React.Component {
 
         this.state = {
             user: null,
-            lobby: [
-                { id: 0, host: 'ChessMate', availability: 0 },
-                { id: 1, host: 'ChessMate', availability: 0 },
-                { id: 2, host: 'ChessMate', availability: 0 },
-                { id: 3, host: 'ChessMate', availability: 0 },
-                { id: 4, host: 'ChessMate', availability: 0 },
-                { id: 5, host: 'ChessMate', availability: 0 }
-            ]
+            lobby: []
         }
 
         this.login = this.login.bind(this);
         this.logout = this.logout.bind(this);
         this.hideShowHist = this.hideShowHist.bind(this);
+        this.addFriend = this.addFriend.bind(this);
         this.resetMulti = this.resetMulti.bind(this);
         this.resetSolo = this.resetSolo.bind(this);
         this.changeName = this.changeName.bind(this);
+        this.updateLobby = this.updateLobby.bind(this);
+
+        setInterval(this.updateLobby, 1000);
     }
-    UNSAFE_componentWillMount() {
+
+    componentWillMount() {
         window.addEventListener('unload', () => {
             localStorage.setItem('chessmateUser', JSON.stringify(this.state.user))
-        })
-        // alert(localStorage.getItem('chessmateUser'));
-        localStorage.getItem('chessmateUser') && this.setState(state => ({ user: JSON.parse(localStorage.getItem('chessmateUser')), lobby: TEST_LOBBY }));
+        });
+
+        localStorage.getItem('chessmateUser') && this.setState(state => ({ user: JSON.parse(localStorage.getItem('chessmateUser')) }));
+
+    }
+
+    updateLobby() {
+        Axios.get('http://localhost:5000/games')
+            .then(response => this.setState({ lobby: [...response.data] }))
+            .catch(error => this.setState({ lobby: [] }))
     }
 
     login(admn) {
@@ -132,50 +137,133 @@ class App extends React.Component {
         this.setState(state => ({ user: null }))
     }
 
+    addFriend(playerName) {
+        if (!(playerName === this.state.user.username)) {
+            Axios.post('http://localhost:5000/player', {
+                myid: this.state.user._id,
+                name: playerName
+            }).then(response => {
+                if ("message" in response.data) {
+                    alert(response.data.message)
+                } else {
+                    //console.log(response.data._id)
+                    Axios.post('http://localhost:5000/addFriend', {
+                        myid: this.state.user._id,
+                        id: response.data._id
+                    }).then(response2 => {
+                        if ("message" in response2.data) {
+                            alert(response2.data.message)
+                        } else {
+                            this.setState(state => ({
+                                user: response2.data, lobby: state.lobby
+                            }));
+                        }
+                    })
+                }
+            })
+        } else {
+            alert("can't add yourself")
+        }
+    }
+
     hideShowHist() {
-        const use = this.state.user;
-        use.matchHistoryView = !this.state.user.matchHistoryView;
-        this.setState(state => ({
-            user: use, lobby: state.lobby
-        }));
+        const new_hide = !this.state.user.matchHistoryView;
+        Axios.patch('http://localhost:5000/matchHist', {
+            myid: this.state.user._id,
+            hide: new_hide
+        }).then(response => {
+            if ("message" in response.data) {
+                alert(response.data.message)
+            } else {
+                this.setState(state => ({
+                    user: response.data, lobby: state.lobby
+                }));
+            }
+        }).catch(error => {
+            console.log(error)
+            alert("strange stuff..")
+        })
     }
 
     changeName(newName) {
+        let flag = false
         if (newName) {
-            Axios.patch('http://localhost:5000/changeName', { // patch not allowed for some reason 
+            Axios.patch('http://localhost:5000/changeName', {
+                myid: this.state.user._id,
                 username: newName
             }).then(response => {
-                const use = this.state.user;
-                use.username = newName;
-                this.setState(state => ({
-                    user: use, lobby: state.lobby
-                }));
+                if ("message" in response.data) {
+                    alert(response.data.message)
+                } else {
+                    this.setState(state => ({
+                        user: response.data, lobby: state.lobby
+                    }));
+                    if (!this.state.user.badges.includes(Crown)) {
+                        console.log("should add crown")
+                        Axios.patch('http://localhost:5000/addBadge', {
+                            myid: this.state.user._id,
+                            badge: Crown
+                        }).then(response => {
+                            if ("message" in response.data) {
+                                alert(response.data.message)
+                            } else {
+                                this.setState(state => ({
+                                    user: response.data, lobby: state.lobby
+                                }));
+                            }
+                        }).catch(error => {
+                            console.log(error)
+                            alert("strange stuff..")
+                        })
+                    }
+                }
             }).catch(error => {
-                alert("no good");
+                console.log(error)
+                alert("strange stuff..")
             })
         }
     }
 
     resetSolo() {
-        const use = this.state.user;
-        use.solo = { win: 0, loss: 0, draw: 0 }
-        this.setState(state => ({
-            user: use, lobby: state.lobby
-        }));
+        Axios.patch('http://localhost:5000/resetStats', {
+            myid: this.state.user._id,
+            solo: true
+        }).then(response => {
+            if ("message" in response.data) {
+                alert(response.data.message)
+            } else {
+                this.setState(state => ({
+                    user: response.data, lobby: state.lobby
+                }));
+            }
+        }).catch(error => {
+            console.log(error)
+            alert("strange stuff..")
+        })
     }
 
     resetMulti() {
-        const use = this.state.user;
-        use.multi = { win: 0, loss: 0, draw: 0 }
-        this.setState(state => ({
-            user: use, lobby: state.lobby
-        }));
+        Axios.patch('http://localhost:5000/resetStats', {
+            myid: this.state.user._id,
+            solo: false
+        }).then(response => {
+            if ("message" in response.data) {
+                alert(response.data.message)
+            } else {
+                this.setState(state => ({
+                    user: response.data, lobby: state.lobby
+                }));
+            }
+        }).catch(error => {
+            console.log(error)
+            alert("strange stuff..")
+        })
     }
 
     render() {
         return (
             <Router user={this.state.user} lobby={this.state.lobby}
-                login={this.login} logout={this.logout} hideShowHist={this.hideShowHist}
+                login={this.login} logout={this.logout} hideShowHist={this.hideShowHist} addFriend={this.addFriend}
                 resetMulti={this.resetMulti} resetSolo={this.resetSolo} changeName={this.changeName}
             />
         )

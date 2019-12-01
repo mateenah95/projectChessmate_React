@@ -1,18 +1,19 @@
 import React from 'react';
 import Dropdown from 'react-dropdown';
 import M from 'materialize-css';
+import Axios from 'axios';
 
 import './NewGamesBar.css';
 import 'react-dropdown/style.css'
 
 
-class NewGamesBar extends React.Component{
-    constructor(props){
+class NewGamesBar extends React.Component {
+    constructor(props) {
         super(props);
         this.state = {
-            gamemode_options: [{value: 'single', label: 'Singleplayer'}, {value: 'multi', label: 'Multiplayer'}],
-            timer_options: [{value: 'timed', label: 'Timed'}, {value: 'untimed', label: 'Untimed'}],
-            color_options: [{value: 'white', label: 'White'}, {value: 'black', label: 'Black'}],
+            gamemode_options: [{ value: 'single', label: 'Singleplayer' }, { value: 'multi', label: 'Multiplayer' }],
+            timer_options: [{ value: 'timed', label: 'Timed' }, { value: 'untimed', label: 'Untimed' }],
+            color_options: [{ value: 'white', label: 'White' }, { value: 'black', label: 'Black' }],
             gamemode: '',
             timed: '',
             color: '',
@@ -26,48 +27,58 @@ class NewGamesBar extends React.Component{
         this.clear = this.clear.bind(this);
     }
 
-    updateGameMode(e){
-        this.setState({gamemode: e.value});
+    updateGameMode(e) {
+        this.setState({ gamemode: e.value });
     }
 
-    updateTimedMode(e){
-        this.setState({timed: e.value});
+    updateTimedMode(e) {
+        this.setState({ timed: e.value });
     }
 
-    updateColor(e){
-        this.setState({color: e.value});
+    updateColor(e) {
+        this.setState({ color: e.value });
     }
 
-    launchNewGame(){
-        if(!this.state.gamemode){
-            this.setState({error: 'Please select game mode!'});
+    launchNewGame() {
+        if (!this.state.gamemode) {
+            this.setState({ error: 'Please select game mode!' });
         }
-        else if(!this.state.timed){
-            this.setState({error: 'Please select timed mode!'});
+        else if (!this.state.timed) {
+            this.setState({ error: 'Please select timed mode!' });
         }
-        else if(!this.state.color){
-            this.setState({error: 'Please select a game color!'});
+        else if (!this.state.color) {
+            this.setState({ error: 'Please select a game color!' });
         }
-        else{
-            M.toast({html: `New ${this.state.color.toUpperCase()} ${this.state.timed.toUpperCase()} ${this.state.gamemode.toUpperCase()}PLAYER Game Created Successfully!`});
-            this.clear();
+        else {
+            Axios.post('http://localhost:5000/game/create', {
+                username: this.props.username,
+                color: this.state.color === 'white' ? 'w' : 'b'
+            }).then(response => {
+                console.log(response.data);
+                M.toast({ html: `New ${this.state.color.toUpperCase()} Game Created Successfully!` });
+                this.clear();
+            }).catch(error => {
+                console.error(error);
+                M.toast({ html: `Some Error Occured! Could Not Create New Game!` });
+                this.clear();
+            });
         }
     }
 
-    getError(){
-        if(this.state.error){
+    getError() {
+        if (this.state.error) {
             return (
                 <div className="error">
                     <h6>{this.state.error}</h6>
                 </div>
             )
         }
-        else{
+        else {
             return ''
         }
     }
 
-    clear(){
+    clear() {
         this.setState({
             gamemode: '',
             timed: '',
@@ -76,9 +87,21 @@ class NewGamesBar extends React.Component{
         })
     }
 
-    render(){
+    // getCorrectOutupt() {
+    //     if (this.props.username.length === 0) {
+    //         return (
+
+    //         )
+    //     }
+    //     else {
+    //         return (
+
+    //         )
+    //     }
+    // }
+    render() {
         return (
-            <div className='wrapper newGamesBar card blue-grey darken-1'>
+            <div className={this.props.username ? 'wrapper newGamesBar card blue-grey darken-1' : 'wrapper newGamesBar card blue-grey darken-1 disabled'}>
                 <h4>Custom Game</h4>
                 <div className='row'>
                     <div className='col s4'>

@@ -4,7 +4,35 @@ import './GameMoves.css';
 
 class GameInfo extends React.Component{
    constructor(props){
-     super(props)
+       super(props)
+       this.state = {
+           moves: <tbody/>
+       };
+       this.updateMoves = this.updateMoves.bind(this);
+
+   }
+
+    updateMoves(moves){
+
+       let table = "";
+       for (let i = 0; i < moves.length; i ++){
+           if (moves[i].color === 'w') {
+               table += "<tr>";
+               table += "<td className='filter-text'>";
+               table += moves[i].san;
+               table += "</td>";
+           } else if (moves[i].color === 'b'){
+               table += "<td className='filter-text'>";
+               table += moves[i].san;
+               table += "</td>";
+               table += "</tr>";
+           }
+       }
+       if (moves.length > 0 && moves[moves.length - 1].color === 'w') {
+           table += "</tr>";
+       }
+       document.getElementById("moves_list").innerHTML = table;
+
    }
 
    render(){
@@ -15,34 +43,10 @@ class GameInfo extends React.Component{
                 <thead>
                     <tr>
                       <th className='filter-text'>White {this.props.user ? "(" + this.props.user.username + ")" : ""}</th>
-                      <th className='filter-text'>Black (Computer)</th>
+                      <th className='filter-text'>Black </th>
                     </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                      <td className='filter-text'>♜c1</td>
-                      <td className='filter-text'>♗d5</td>
-                  </tr>
-                  <tr>
-                      <td className='filter-text'>♛f4</td>
-                      <td className='filter-text'>♘f4</td>
-                  </tr>
-                  <tr>
-                      <td className='filter-text'>♜c1</td>
-                      <td className='filter-text'>♖d5</td>
-                  </tr>
-                  <tr>
-                      <td className='filter-text'>♜c1</td>
-                      <td className='filter-text'>♗d5</td>
-                  </tr>
-                  <tr>
-                      <td className='filter-text'>♜c1</td>
-                      <td className='filter-text'>♗d5</td>
-                  </tr>
-                  <tr>
-                      <td className='filter-text'>♜c1</td>
-                      <td className='filter-text'>♗d5</td>
-                  </tr>
+                <tbody id='moves_list'>
                 </tbody>
              </table>
          </div>

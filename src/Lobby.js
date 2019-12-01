@@ -1,6 +1,7 @@
 import React from 'react';
 import Dropdown from 'react-dropdown';
 import { Link } from 'react-router-dom';
+import Axios from 'axios';
 
 import './Lobby.css';
 import 'react-dropdown/style.css'
@@ -9,20 +10,29 @@ import { exportDefaultSpecifier } from '@babel/types';
 class Lobby extends React.Component {
     constructor(props) {
         super(props);
-
+        console.log(this.props.lobby)
         this.state = {
             sort_options: [{ value: 'id', label: 'Id' }, { value: 'host', label: 'Host' }, { value: 'availability', label: 'Availability' }],
             show_only_available: false,
             host_filter: '',
             sort_by: 'id',
-            games_to_show: [...this.props.lobby]
+            games_to_show: []
         }
 
         this.toggleAvailabilityFilter = this.toggleAvailabilityFilter.bind(this);
         this.runFilters = this.runFilters.bind(this);
         this.updateHostFilter = this.updateHostFilter.bind(this);
         this.updateSortOption = this.updateSortOption.bind(this);
+        this.updateLobby = this.updateLobby.bind(this);
+        this.joinGame = this.joinGame.bind(this);
+
+        setInterval(this.updateLobby, 1000);
     }
+
+    updateLobby() {
+        this.setState({ games_to_show: [...this.props.lobby] })
+    }
+
 
     updateHostFilter(e) {
         this.setState({ host_filter: e.target.value.trim() });
@@ -40,10 +50,10 @@ class Lobby extends React.Component {
     }
 
     compareById(el1, el2) {
-        if (el1.id > el2.id) {
+        if (el1._id > el2._id) {
             return 1
         }
-        else if (el1.id < el2.id) {
+        else if (el1._id < el2._id) {
             return -1
         }
         else {
@@ -52,10 +62,10 @@ class Lobby extends React.Component {
     }
 
     compareByHost(el1, el2) {
-        if (el1.host > el2.host) {
+        if (el1.player1 > el2.player1) {
             return 1
         }
-        else if (el1.host < el2.host) {
+        else if (el1.player1 < el2.player1) {
             return -1
         }
         else {
@@ -64,10 +74,10 @@ class Lobby extends React.Component {
     }
 
     compareByAvailability(el1, el2) {
-        if (el1.availability > el2.availability) {
+        if (el1.player2 && !el2.player2) {
             return 1
         }
-        else if (el1.availability < el2.availability) {
+        else if (el2.player2 && !el1.player2) {
             return -1
         }
         else {
@@ -77,25 +87,41 @@ class Lobby extends React.Component {
 
 
     runFilters() {
-        let temp = [...this.props.lobby];
-        if (this.state.show_only_available) {
-            temp = temp.filter(game => game.availability);
-        }
-        if (this.state.host_filter.length > 0) {
-            temp = temp.filter(game => game.host.includes(this.state.host_filter))
-        }
-        if (this.state.sort_by === 'id') {
-            temp = temp.sort(this.compareById);
-        }
-        if (this.state.sort_by === 'host') {
-            temp = temp.sort(this.compareByHost);
-        }
-        if (this.state.sort_by === 'availability') {
-            temp = temp.sort(this.compareByAvailability);
-        }
-        this.setState(state => ({ games_to_show: temp }));
+        let temp = [];
+
+        Axios.get('http://localhost:5000/games')
+            .then(response => {
+                // this.setState({ games_to_show: [...response.data] })
+                temp = response.data;
+
+                if (this.state.show_only_available) {
+                    temp = temp.filter(game => game.availability);
+                }
+                if (this.state.host_filter.length > 0) {
+                    temp = temp.filter(game => game.player1.includes(this.state.host_filter))
+                }
+                if (this.state.sort_by === 'id') {
+                    temp = temp.sort(this.compareById);
+                }
+                if (this.state.sort_by === 'host') {
+                    temp = temp.sort(this.compareByHost);
+                }
+                if (this.state.sort_by === 'availability') {
+                    temp = temp.sort(this.compareByAvailability);
+                }
+                this.setState(state => ({ games_to_show: temp }));
+            })
+            .catch(error => this.setState({ games_to_show: [...this.props.lobby] }))
     }
 
+    joinGame(e) {
+        const gameid = e.target.getAttribute('gameid');
+        const requestURL = `http://localhost:5000/game/join/${gameid}`;
+        // console.log(requestURL)
+        Axios.post(requestURL, { username: this.props.username })
+            .then(response => console.log(response.data))
+            .catch(error => console.log(error))
+    }
 
     render() {
         return (
@@ -113,11 +139,12 @@ class Lobby extends React.Component {
                         </thead>
                         <tbody>
                             {this.state.games_to_show.map(game => (
-                                <tr key={game.id}>
-                                    <td>{game.id}</td>
-                                    <td><em>{game.host}</em></td>
-                                    <td>{game.availability ? <div className='available'></div> : <div className='inprogress'></div>}</td>
-                                    <td>{game.availability ? <Link to='/game' className="waves-effect waves-light btn" >Join</Link> : <a className="waves-effect waves-light btn" disabled>Join</a>}</td>
+                                <tr key={game._id}>
+                                    <td>{game._id}</td>
+                                    <td><em>{game.player1}</em></td>
+                                    <td>{game.player2 ? <div className='inprogress'></div> : <div className='available'></div>}</td>
+                                    <td>{game.player2 ? <a className="waves-effect waves-light btn" disabled>Join</a> : <a gameid={game._id} onClick={this.joinGame} className="waves-effect waves-light btn" >Join</a>}</td>
+
                                 </tr>
                             ))}
                         </tbody>

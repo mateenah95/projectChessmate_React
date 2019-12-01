@@ -5,12 +5,12 @@ import GameBar from './GamesBar';
 
 import './LobbyPage.css';
 
-class LobbyPage extends React.Component{
-    constructor(props){
+class LobbyPage extends React.Component {
+    constructor(props) {
         super(props);
     }
 
-    render(){
+    render() {
         return (
             <div>
                 <br />
@@ -18,9 +18,9 @@ class LobbyPage extends React.Component{
                     <div className='col s6'>
                         <UserBar user={this.props.user} />
                     </div>
-                    	
+
                     <div className='col s6'>
-                        <GameBar lobby={this.props.lobby} />
+                        <GameBar username={this.props.user ? this.props.user.username : ''} lobby={this.props.lobby} />
                     </div>
                 </div>
             </div>

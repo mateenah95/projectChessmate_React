@@ -1,12 +1,66 @@
 import React from 'react';
+import Timer from 'timer.js';
 
-import './GameTime.css';
 
 class GameInfo extends React.Component{
-   constructor(props){
-     super(props)
-     
+   constructor(props, time){
+       super(props);
+       this.time = time;
    }
+
+    w_remaining = -1;
+    b_remaining = -1;
+    whiteTimer = new Timer({
+        tick    : 0.25,
+        ontick  : function(ms) {
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+            const clock = minutes + ":" + seconds;
+            document.getElementById("wtimer").innerHTML = clock;
+        }
+        // onend   : function() { console.log('timer ended normally') }
+    });
+
+    blackTimer = new Timer({
+        tick    : 0.25,
+        ontick  : function(ms) {
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+            const clock = minutes + ":" + seconds;
+            document.getElementById("btimer").innerHTML = clock;
+        }
+        // onstart : function() { console.log('timer started') },
+        // onstop  : function() { console.log('timer stop') },
+        // onpause : function() { console.log('timer set on pause') },
+        // onend   : function() { console.log('timer ended normally') }
+    });
+
+    init_clocks(initial){
+        this.w_remaining = initial;
+        this.b_remaining = initial;
+        const minutes = Math.floor(initial / 60);
+        const seconds = Math.floor(initial % 60);
+        const clock = minutes + ":" + seconds;
+        document.getElementById("wtimer").innerHTML = clock;
+        document.getElementById("btimer").innerHTML = clock;
+    }
+
+    start_w(){
+        this.whiteTimer.start(this.w_remaining)
+    }
+    stop_w(){
+        this.whiteTimer.pause();
+        this.w_remaining = this.whiteTimer.getDuration() / 1000;
+    }
+
+    start_b(){
+        this.blackTimer.start(this.b_remaining)
+    }
+    stop_b(){
+        this.blackTimer.pause();
+        this.b_remaining = this.blackTimer.getDuration() / 1000;
+    }
+
 
    render(){
      return(
@@ -15,14 +69,15 @@ class GameInfo extends React.Component{
              <table className='striped'>
                  <thead>
                      <tr>
-                         <th className='filter-text'>White {this.props.user ? "(" + this.props.user.username + ")" : ""}</th>
-                         <th className='filter-text'>Black (Computer)</th>
+                         {/*<th className='filter-text'>White {this.props.user ? "(" + this.props.user.username + ")" : ""}</th>*/}
+                         <th className='filter-text'> White </th>
+                         <th className='filter-text'> Black </th>
                      </tr>
                  </thead>
                  <tbody>
                      <tr>
-                         <td className='filter-text'>1:01</td>
-                         <td className='filter-text'>2:32</td>
+                         <td className='filter-text' id='wtimer'>0</td>
+                         <td className='filter-text' id ='btimer'>0</td>
                      </tr>
                  </tbody>
              </table>
