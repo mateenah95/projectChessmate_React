@@ -18,7 +18,7 @@ let orientation = 'white';
 let move_ = '';
 let position = 'start';
 let game_id = "";
-const time = 1 * 60;
+const time = 1 * 15;
 const testing = true;
 let game_over = false;
 
@@ -57,23 +57,25 @@ class Game extends Component {
         game_time.init_clocks(time, game_id);
         game_time.start_w();
         this.game = new Chess();
+
         socket.on('id', function (id) {
             console.log("id received: " + id);
             game_id = id;
         }.bind(this));
+
         socket.on('fen', function (fen) {
             position = fen;
             this.updateBoard();
         }.bind(this));
+
         socket.on('move', function (move) {
             move_ = move;
             this.updateBoard();
-
             const history = this.state.history;
             history.push(move);
             game_moves.updateMoves(history);
-
         }.bind(this));
+
         socket.on('side', function (side) {
             console.log(side);
             side_ = side;
@@ -84,6 +86,7 @@ class Game extends Component {
             }
             this.updateBoard();
         }.bind(this));
+
         socket.on('time', function (time) {
             if (!game_over) {
                 game_time.set_w(time[0]);
@@ -202,6 +205,12 @@ class Game extends Component {
 
     };
 
+    backToLobby() {
+        const lobbyLink = document.getElementById('lobby-lnk');
+        const clickLink = new MouseEvent('click');
+        lobbyLink.dispatchEvent(clickLink);
+    }
+
     handle_move(move) {
         socket.emit('move', move);
         socket.emit('fen', this.game.fen());
@@ -211,7 +220,8 @@ class Game extends Component {
             Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
                 result: "b"
             }).then(response => {
-
+                console.log('CHECK3')
+                this.backToLobby();
             }).catch(error => {
                 console.error(error)
             });
@@ -222,7 +232,7 @@ class Game extends Component {
             Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
                 result: "w"
             }).then(response => {
-
+                this.backToLobby();
             }).catch(error => {
                 console.error(error)
             });
@@ -250,6 +260,7 @@ class Game extends Component {
                 result: "draw"
             }).then(response => {
                 console.log(response)
+                this.backToLobby();
             }).catch(error => {
                 console.error(error)
             });
@@ -260,7 +271,7 @@ class Game extends Component {
             Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
                 result: "w"
             }).then(response => {
-
+                this.backToLobby();
             }).catch(error => {
                 console.error(error)
             });
@@ -271,7 +282,7 @@ class Game extends Component {
             Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
                 result: "b"
             }).then(response => {
-
+                this.backToLobby();
             }).catch(error => {
                 console.error(error)
             });
