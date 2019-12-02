@@ -37,7 +37,7 @@ class Leaderboard extends Component {
                 maxScore: 8,
                 sortBy: 'rank'
             },
-            sort_options: [{ value: 'rank', label: 'Rank' }, { value: 'username', label: 'Username' }],
+            sort_options: [{ value: 'rank', label: 'Rank' }, { value: 'username', label: 'Username' }, { value: 'wins', label: 'Wins' }, { value: 'losses', label: 'Losses' }],
 
         }
 
@@ -45,9 +45,27 @@ class Leaderboard extends Component {
         this.sliderHandler = this.sliderHandler.bind(this);
         this.usernameHandler = this.usernameHandler.bind(this);
         this.multiplayerSortByHandler = this.multiplayerSortByHandler.bind(this);
+        this.clearFilters = this.clearFilters.bind(this);
     }
 
     componentDidMount() {
+        this.runFilters();
+    }
+
+    clearFilters() {
+        console.log('ran')
+
+        this.setState({
+            multiplayer: {
+                usernameFilter: '',
+                minRank: 0,
+                maxRank: 8,
+                minScore: 0,
+                maxScore: 8,
+                sortBy: 'rank'
+            }
+        });
+
         this.runFilters();
     }
 
@@ -194,6 +212,19 @@ class Leaderboard extends Component {
         }
     }
 
+    compareByLoss(el1, el2) {
+        if (el1.multi.loss < el2.multi.loss) {
+            return 1
+        }
+        else if (el1.multi.loss > el2.multi.loss) {
+
+            return -1
+        }
+        else {
+            return 0
+        }
+    }
+
     compareByUsername(el1, el2) {
         if (el1.username > el2.username) {
             return 1
@@ -224,6 +255,9 @@ class Leaderboard extends Component {
                 if (this.state.multiplayer.sortBy === 'username') {
                     temp = temp.sort(this.compareByUsername);
                 }
+                if (this.state.multiplayer.sortBy === 'losses') {
+                    temp = temp.sort(this.compareByLoss);
+                }
                 if (this.state.multiplayer.minRank > 0) {
                     temp = temp.filter(user => user.rank >= this.state.multiplayer.minRank)
                 }
@@ -244,6 +278,7 @@ class Leaderboard extends Component {
                     <div className='col s6 padded'>
                         <div className="padded wrapper card blue-grey darken-1 z-depth-5">
                             <h3 id='leaderboard_title'> Sorting and Filtering </h3>
+                            <button className='btn waves-effect waves-light btn inline space-around bigbutton' onClick={this.clearFilters}>Clear Filters</button>
                             <br />
                             <div className='row'>
                                 <div className='col s6'>
@@ -279,7 +314,7 @@ class Leaderboard extends Component {
                     <div className='col s6 padded'>
                         <div className="padded wrapper card blue-grey darken-1 z-depth-5" id="multiplayer_container">
                             <h3 id='leaderboard_title'> Multi-player </h3>
-                            <h5>Timed</h5>
+                            <button className='btn waves-effect waves-light btn inline space-around bigbutton' onClick={this.runFilters}>Refresh</button>
                             <br />
                             <table id='leaderboard_table' className='striped'>
                                 <tbody>
