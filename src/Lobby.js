@@ -26,7 +26,7 @@ class Lobby extends React.Component {
         this.updateLobby = this.updateLobby.bind(this);
         this.joinGame = this.joinGame.bind(this);
 
-        setInterval(this.updateLobby, 1000);
+        setInterval(this.runFilters, 1000);
     }
 
     updateLobby() {
@@ -95,7 +95,7 @@ class Lobby extends React.Component {
                 temp = response.data;
 
                 if (this.state.show_only_available) {
-                    temp = temp.filter(game => game.availability);
+                    temp = temp.filter(game => !game.player2);
                 }
                 if (this.state.host_filter.length > 0) {
                     temp = temp.filter(game => game.player1.includes(this.state.host_filter))

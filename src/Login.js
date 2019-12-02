@@ -104,7 +104,7 @@ class Login extends React.Component {
                         <div>
                             <div className="input-field col s6">
                                 <p>Username</p>
-                                <input type="text" onChange={this.updateUsername} className="validate center" placeholder="Enter username here" value={this.state.username} />
+                                <input type="text" onChange={this.updateUsername} className="validate center" placeholder="Enter username here" value={this.state.username} autoFocus />
                             </div>
                             <div className="input-field col s6">
                                 <p>Password</p>

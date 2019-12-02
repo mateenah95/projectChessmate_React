@@ -3,11 +3,9 @@ import Timer from 'timer.js';
 
 
 class GameInfo extends React.Component {
-    constructor(props, time) {
+    constructor(props) {
         super(props);
-        this.time = time;
     }
-
     w_remaining = -1;
     b_remaining = -1;
     whiteTimer = new Timer({
@@ -16,9 +14,14 @@ class GameInfo extends React.Component {
             const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((ms % (1000 * 60)) / 1000);
             const clock = minutes + ":" + seconds;
-            document.getElementById("wtimer").innerHTML = clock;
-        }
-        // onend   : function() { console.log('timer ended normally') }
+            if (document.getElementById("wtimer") === null) {
+                this.stop();
+            } else {
+                document.getElementById("wtimer").innerHTML = clock;
+            }
+        },
+        // onend   : function() {}
+        // onstop  : function() { console.log('timer stop') }
     });
 
     blackTimer = new Timer({
@@ -27,12 +30,17 @@ class GameInfo extends React.Component {
             const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((ms % (1000 * 60)) / 1000);
             const clock = minutes + ":" + seconds;
-            document.getElementById("btimer").innerHTML = clock;
-        }
+            if (document.getElementById("btimer") === null) {
+                this.stop();
+            } else {
+                document.getElementById("btimer").innerHTML = clock;
+            }
+        },
+
+        // onstop  : function() { console.log('timer stop') }
         // onstart : function() { console.log('timer started') },
         // onstop  : function() { console.log('timer stop') },
         // onpause : function() { console.log('timer set on pause') },
-        // onend   : function() { console.log('timer ended normally') }
     });
 
     init_clocks(initial) {
@@ -41,10 +49,11 @@ class GameInfo extends React.Component {
         const minutes = Math.floor(initial / 60);
         const seconds = Math.floor(initial % 60);
         const clock = minutes + ":" + seconds;
-        document.getElementById("wtimer").innerHTML = clock;
-        document.getElementById("btimer").innerHTML = clock;
+        if (document.getElementById("btimer") !== null) {
+            document.getElementById("wtimer").innerHTML = clock;
+            document.getElementById("btimer").innerHTML = clock;
+        }
     }
-
     start_w() {
         this.whiteTimer.start(this.w_remaining)
     }
@@ -59,6 +68,20 @@ class GameInfo extends React.Component {
     stop_b() {
         this.blackTimer.pause();
         this.b_remaining = this.blackTimer.getDuration() / 1000;
+    }
+
+    set_w(time) {
+        this.w_remaining = time;
+    }
+    set_b(time) {
+        this.b_remaining = time;
+    }
+
+    get_w() {
+        return this.w_remaining;
+    }
+    get_b() {
+        return this.b_remaining;
     }
 
 

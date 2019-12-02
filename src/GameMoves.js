@@ -13,25 +13,45 @@ class GameInfo extends React.Component{
    }
 
     updateMoves(moves){
-
+        let chunks = []
        let table = "";
        for (let i = 0; i < moves.length; i ++){
+           let chunk = ''
            if (moves[i].color === 'w') {
-               table += "<tr>";
-               table += "<td className='filter-text'>";
-               table += moves[i].san;
-               table += "</td>";
+               chunk += "<tr>";
+               chunk += "<td className='filter-text'>";
+               chunk += moves[i].san;
+               chunk += "</td>";
            } else if (moves[i].color === 'b'){
-               table += "<td className='filter-text'>";
-               table += moves[i].san;
-               table += "</td>";
-               table += "</tr>";
+               chunk += "<td className='filter-text'>";
+               chunk += moves[i].san;
+               chunk += "</td>";
+               chunk += "</tr>";
            }
+           table+= chunk;
+           chunks.push(chunk)
+
        }
        if (moves.length > 0 && moves[moves.length - 1].color === 'w') {
            table += "</tr>";
        }
-       document.getElementById("moves_list").innerHTML = table;
+        let reversed = "";
+        if (chunks.length %2 ===0){
+            for (let i = chunks.length - 2; i >= 0; i -=2){
+                reversed += chunks[i];
+                reversed += chunks[i+1];
+            }
+        }else{
+            reversed += chunks[chunks.length - 1];
+            reversed += "</tr>";
+            for (let i = chunks.length - 3; i >= 0; i -=2){
+                reversed += chunks[i];
+                reversed += chunks[i+1];
+            }
+        }
+        if ( document.getElementById("moves_list") !== null){
+            document.getElementById("moves_list").innerHTML = reversed;
+        }
 
    }
 

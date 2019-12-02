@@ -11,15 +11,12 @@ class NewGamesBar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            gamemode_options: [{ value: 'single', label: 'Singleplayer' }, { value: 'multi', label: 'Multiplayer' }],
             timer_options: [{ value: 'timed', label: 'Timed' }, { value: 'untimed', label: 'Untimed' }],
             color_options: [{ value: 'white', label: 'White' }, { value: 'black', label: 'Black' }],
-            gamemode: '',
             timed: '',
             color: '',
             error: ''
         }
-        this.updateGameMode = this.updateGameMode.bind(this);
         this.updateTimedMode = this.updateTimedMode.bind(this);
         this.updateColor = this.updateColor.bind(this);
         this.launchNewGame = this.launchNewGame.bind(this);
@@ -27,9 +24,6 @@ class NewGamesBar extends React.Component {
         this.clear = this.clear.bind(this);
     }
 
-    updateGameMode(e) {
-        this.setState({ gamemode: e.value });
-    }
 
     updateTimedMode(e) {
         this.setState({ timed: e.value });
@@ -40,10 +34,7 @@ class NewGamesBar extends React.Component {
     }
 
     launchNewGame() {
-        if (!this.state.gamemode) {
-            this.setState({ error: 'Please select game mode!' });
-        }
-        else if (!this.state.timed) {
+        if (!this.state.timed) {
             this.setState({ error: 'Please select timed mode!' });
         }
         else if (!this.state.color) {
@@ -87,7 +78,6 @@ class NewGamesBar extends React.Component {
 
     clear() {
         this.setState({
-            gamemode: '',
             timed: '',
             color: '',
             error: ''
@@ -111,15 +101,11 @@ class NewGamesBar extends React.Component {
             <div className={this.props.username ? 'wrapper newGamesBar card blue-grey darken-1' : 'wrapper newGamesBar card blue-grey darken-1 disabled'}>
                 <h4>Custom Game</h4>
                 <div className='row'>
-                    <div className='col s4'>
-                        <h5>Gamemode:</h5>
-                        <Dropdown options={this.state.gamemode_options} onChange={this.updateGameMode} value={this.state.gamemode} placeholder='Select Mode' />
-                    </div>
-                    <div className='col s4'>
+                    <div className='col s6'>
                         <h5>Timed/Untimed:</h5>
                         <Dropdown options={this.state.timer_options} onChange={this.updateTimedMode} value={this.state.timed} placeholder='Select Time Mode' />
                     </div>
-                    <div className='col s4'>
+                    <div className='col s6'>
                         <h5>Color:</h5>
                         <Dropdown options={this.state.color_options} onChange={this.updateColor} value={this.state.color} placeholder='Select Color' />
                     </div>

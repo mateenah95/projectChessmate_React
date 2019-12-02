@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import html_icon from './imgs/html-icon.png';
 import css_icon from './imgs/css-icon.png';
@@ -12,12 +12,12 @@ import express_icon from './imgs/express-icon.png';
 import './HomePage.css';
 
 
-class HomePage extends React.Component{
-    constructor(props){
+class HomePage extends React.Component {
+    constructor(props) {
         super(props);
     }
 
-    render(){
+    render() {
         return (
             <div>
                 <br />
@@ -25,11 +25,13 @@ class HomePage extends React.Component{
                     <div className='col s4 center'>
                         <br />
                         <br />
-                        <div className='circle blue-grey darken-1 '>
+                        <div className='circles blue-grey darken-1 '>
                             <h5>Multiplayer Support</h5>
                         </div>
                         <br />
-                        <div className='circle blue-grey darken-1 '>
+                        <br />
+                        <br />
+                        <div className='circles blue-grey darken-1 '>
                             <h5>Dedicated Lobby</h5>
                         </div>
                     </div>
@@ -53,15 +55,17 @@ class HomePage extends React.Component{
                             </div>
                         </div>
                         <br />
-                    </div> 
+                    </div>
                     <div className='col s4 center'>
                         <br />
                         <br />
-                        <div className='circle blue-grey darken-1 '>
+                        <div className='circles blue-grey darken-1 '>
                             <h5>Dedicated Leaderboard</h5>
                         </div>
                         <br />
-                        <div className='circle blue-grey darken-1 '>
+                        <br />
+                        <br />
+                        <div className='circles blue-grey darken-1 '>
                             <h5 className='insideCircle'>Admin Controls</h5>
                         </div>
                     </div>

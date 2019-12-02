@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Dropdown from 'react-dropdown';
+import Axios from 'axios';
 
 import './Leaderboard.css';
 import UserBar from "./UserBar";
@@ -9,11 +10,11 @@ class Leaderboard extends Component {
         super(props);
         this.multiplayer_data = {
             users: [
-                { rank: 1, username: 'Bob', wins: 10, losses: 0, score: 100 },
-                { rank: 2, username: 'Jake', wins: 4, losses: 2, score: 30 },
-                { rank: 3, username: 'Bill', wins: 5, losses: 5, score: 25 },
-                { rank: 4, username: 'Mike', wins: 1, losses: 2, score: 0 },
-                { rank: 5, username: 'Philip', wins: 0, losses: 3, score: -15 }
+                { username: 'Bob', wins: 10, losses: 0, score: 100 },
+                { username: 'Jake', wins: 4, losses: 2, score: 30 },
+                { username: 'Bill', wins: 5, losses: 5, score: 25 },
+                { username: 'Mike', wins: 1, losses: 2, score: 0 },
+                { username: 'Philip', wins: 0, losses: 3, score: -15 }
             ]
         };
         this.singleplayer_data = {
@@ -27,42 +28,39 @@ class Leaderboard extends Component {
         };
 
         this.state = {
+            users_to_show: [],
             multiplayer: {
                 usernameFilter: '',
                 minRank: 0,
-                maxRank: 100,
+                maxRank: 8,
                 minScore: 0,
-                maxScore: 100,
+                maxScore: 8,
                 sortBy: 'rank'
             },
-            singleplayer: {
-                usernameFilter: '',
-                minRank: 0,
-                maxRank: 100,
-                minScore: 0,
-                maxScore: 100,
-                sortBy: ''
-            },
-            sort_options: [{ value: 'rank', label: 'Rank' }, { value: 'username', label: 'Username' }, { value: 'score', label: 'Score' }],
+            sort_options: [{ value: 'rank', label: 'Rank' }, { value: 'username', label: 'Username' }],
 
         }
 
+        this.runFilters = this.runFilters.bind(this);
         this.sliderHandler = this.sliderHandler.bind(this);
         this.usernameHandler = this.usernameHandler.bind(this);
         this.multiplayerSortByHandler = this.multiplayerSortByHandler.bind(this);
     }
 
+    componentDidMount() {
+        this.runFilters();
+    }
+
     renderTableData(mode) {
         if (mode === "multi") {
-            return this.multiplayer_data.users.map((data) => {
-                const { rank, username, wins, losses, score } = data;
+            return this.state.users_to_show.map((data) => {
+                const { rank, username } = data;
                 return (
                     <tr key={username}>
                         <td>{rank}</td>
                         <td>{username}</td>
-                        <td>{wins}</td>
-                        <td>{losses}</td>
-                        <td>{score}</td>
+                        <td>{data.multi.win}</td>
+                        <td>{data.multi.loss}</td>
                     </tr>
                 )
             })
@@ -143,65 +141,18 @@ class Leaderboard extends Component {
                     }
                 }));
                 break;
-            case 'singleplayer-min-rank':
-                this.setState(prevState => ({
-                    singleplayer: {
-                        usernameFilter: prevState.singleplayer.usernameFilter,
-                        minRank: newValue,
-                        maxRank: prevState.singleplayer.maxRank,
-                        minScore: prevState.singleplayer.minScore,
-                        maxScore: prevState.singleplayer.maxScore,
-                        sortBy: prevState.singleplayer.sortBy
-                    }
-                }));
-                break;
-            case 'singleplayer-max-rank':
-                this.setState(prevState => ({
-                    singleplayer: {
-                        usernameFilter: prevState.singleplayer.usernameFilter,
-                        minRank: prevState.singleplayer.minRank,
-                        maxRank: newValue,
-                        minScore: prevState.singleplayer.minScore,
-                        maxScore: prevState.singleplayer.maxScore,
-                        sortBy: prevState.multiplayer.sortBy
-                    }
-                }));
-                break;
-            case 'singleplayer-min-score':
-                this.setState(prevState => ({
-                    singleplayer: {
-                        usernameFilter: prevState.singleplayer.usernameFilter,
-                        minRank: prevState.singleplayer.minRank,
-                        maxRank: prevState.multiplayer.maxRank,
-                        minScore: newValue,
-                        maxScore: prevState.singleplayer.maxScore,
-                        sortBy: prevState.multiplayer.sortBy
-                    }
-                }));
-                break;
-            case 'singleplayer-max-score':
-                this.setState(prevState => ({
-                    singleplayer: {
-                        usernameFilter: prevState.singleplayer.usernameFilter,
-                        minRank: prevState.singleplayer.minRank,
-                        maxRank: prevState.singleplayer.maxRank,
-                        minScore: prevState.singleplayer.minScore,
-                        maxScore: newValue,
-                        sortBy: prevState.multiplayer.sortBy
-                    }
-                }));
-                break;
         }
 
-        setTimeout(() => console.log(this.state.singleplayer), 200);
+        setTimeout(() => { console.log(this.state.multiplayer); this.runFilters(); }, 100);
     }
 
     usernameHandler(e) {
-        let newValue = e.target.value;
+        let newValue = e.target.value.trim();
 
         if (e.target.id === 'multiplayer-username-filter') {
             this.setState(prevState => ({
                 multiplayer: {
+                    sortBy: prevState.multiplayer.sortBy,
                     minRank: prevState.multiplayer.minRank,
                     maxRank: prevState.multiplayer.maxRank,
                     minScore: prevState.multiplayer.minScore,
@@ -211,19 +162,7 @@ class Leaderboard extends Component {
             }));
         }
 
-        if (e.target.id === 'singleplayer-username-filter') {
-            this.setState(prevState => ({
-                singleplayer: {
-                    minRank: prevState.singleplayer.minRank,
-                    maxRank: prevState.singleplayer.maxRank,
-                    minScore: prevState.singleplayer.minScore,
-                    maxScore: prevState.singleplayer.maxScore,
-                    usernameFilter: newValue
-                }
-            }))
-        }
-
-        setTimeout(() => console.log(this.state), 200);
+        setTimeout(() => { console.log(this.state); this.runFilters(); }, 100);
     }
 
     multiplayerSortByHandler(e) {
@@ -237,7 +176,63 @@ class Leaderboard extends Component {
                 sortBy: e.value
             }
         }));
-        setTimeout(() => { console.log(this.state) }, 100);
+        setTimeout(() => { console.log(this.state); this.runFilters(); }, 100);
+    }
+
+    compareByRank(el1, el2) {
+        console.log(el1.multi.win, el2.multi.win)
+
+        if (el1.multi.win < el2.multi.win) {
+            return 1
+        }
+        else if (el1.multi.win > el2.multi.win) {
+
+            return -1
+        }
+        else {
+            return 0
+        }
+    }
+
+    compareByUsername(el1, el2) {
+        if (el1.username > el2.username) {
+            return 1
+        }
+        else if (el1.username < el2.username) {
+            return -1
+        }
+        else {
+            return 0
+        }
+    }
+
+    runFilters() {
+        let temp = [];
+
+        Axios.get('https://chessmate-api.herokuapp.com/users')
+            .then(response => {
+                // this.setState({ games_to_show: [...response.data] })
+                temp = response.data;
+                // temp = this.multiplayer_data.users;
+                temp = temp.sort(this.compareByRank);
+                let i = 1;
+                temp.forEach(el => { el.rank = i; i++ })
+
+                if (this.state.multiplayer.usernameFilter.length > 0) {
+                    temp = temp.filter(user => user.username.includes(this.state.multiplayer.usernameFilter))
+                }
+                if (this.state.multiplayer.sortBy === 'username') {
+                    temp = temp.sort(this.compareByUsername);
+                }
+                if (this.state.multiplayer.minRank > 0) {
+                    temp = temp.filter(user => user.rank >= this.state.multiplayer.minRank)
+                }
+                if (this.state.multiplayer.maxRank < 100) {
+                    temp = temp.filter(user => user.rank <= this.state.multiplayer.maxRank)
+                }
+                this.setState(state => ({ users_to_show: temp }));
+            })
+            .catch(error => this.setState({ users_to_show: this.multiplayer_data.users }))
     }
 
 
@@ -247,131 +242,58 @@ class Leaderboard extends Component {
                 <br />
                 <div className="row">
                     <div className='col s6 padded'>
+                        <div className="padded wrapper card blue-grey darken-1 z-depth-5">
+                            <h3 id='leaderboard_title'> Sorting and Filtering </h3>
+                            <br />
+                            <div className='row'>
+                                <div className='col s6'>
+                                    <h4>Filter Username</h4>
+                                    <input id='multiplayer-username-filter' type='text' className='center white-text' value={this.state.multiplayer.usernameFilter} placeholder='Filter by username' onChange={this.usernameHandler}></input>
+                                </div>
+                                <div className='col s6'>
+                                    <h4>Sort By</h4>
+                                    <Dropdown options={this.state.sort_options} value={this.state.multiplayer.sortBy} onChange={this.multiplayerSortByHandler} />
+
+                                </div>
+                            </div>
+                            <br />
+                            <h4>Rank Range</h4>
+                            <div className="row">
+                                <div className='col s6'>
+                                    <h6>Min Rank</h6>
+                                    <div id='min-rank'>{this.state.multiplayer.minRank}</div>
+                                    <div tooltip={this.state.multiplayer.minRank}>
+                                        <input type="range" min="1" max="8" value={this.state.multiplayer.minRank} className="slider" id="multiplayer-min-rank" onChange={this.sliderHandler} />
+                                    </div>
+                                </div>
+                                <div className='col s6'>
+                                    <h6>Max Rank</h6>
+                                    <div id='max-rank'>{this.state.multiplayer.maxRank}</div>
+                                    <div tooltip={this.state.multiplayer.maxRank}>
+                                        <input type="range" min="1" max="8" value={this.state.multiplayer.maxRank} className="slider" id="multiplayer-max-rank" onChange={this.sliderHandler} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='col s6 padded'>
                         <div className="padded wrapper card blue-grey darken-1 z-depth-5" id="multiplayer_container">
                             <h3 id='leaderboard_title'> Multi-player </h3>
                             <h5>Timed</h5>
                             <br />
                             <table id='leaderboard_table' className='striped'>
                                 <tbody>
-                                    <tr>{this.renderTableHeader()}</tr>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Username</th>
+                                        <th>Wins</th>
+                                        <th>Losses</th>
+                                    </tr>
                                     {this.renderTableData("multi")}
                                 </tbody>
                             </table>
-                            <div className='filter-wrapper center leaderboard-text-filter'>
-                                <div className='row'>
-                                    <div className='col s6'>
-                                        <h4>Filter</h4>
-                                        <input id='multiplayer-username-filter' type='text' className='center white-text' value={this.state.multiplayer.usernameFilter} placeholder='Filter by username' onChange={this.usernameHandler}></input>
-                                    </div>
-                                    <div className='col s6'>
-                                        <h4>Sort By</h4>
-                                        <Dropdown options={this.state.sort_options} value={this.state.multiplayer.sortBy} onChange={this.multiplayerSortByHandler} />
-
-                                    </div>
-                                </div>
-                                <br />
-                                <h4>Rank Range</h4>
-                                <div className="row">
-                                    <div className='col s6'>
-                                        <h6>Min Rank</h6>
-                                        <div id='min-rank'>{this.state.multiplayer.minRank}</div>
-                                        <div tooltip={this.state.multiplayer.minRank}>
-                                            <input type="range" min="1" max="100" value={this.state.multiplayer.minRank} className="slider" id="multiplayer-min-rank" onChange={this.sliderHandler} />
-                                        </div>
-                                    </div>
-                                    <div className='col s6'>
-                                        <h6>Max Rank</h6>
-                                        <div id='max-rank'>{this.state.multiplayer.maxRank}</div>
-                                        <div tooltip={this.state.multiplayer.maxRank}>
-                                            <input type="range" min="1" max="100" value={this.state.multiplayer.maxRank} className="slider" id="multiplayer-max-rank" onChange={this.sliderHandler} />
-                                        </div>
-                                    </div>
-                                </div>
-                                <br />
-                                <h4>Score Range</h4>
-                                <div className="row">
-                                    <div className='col s6'>
-                                        <h6>Min Score</h6>
-                                        <div id='min-rank'>{this.state.multiplayer.minScore}</div>
-                                        <div tooltip={this.state.multiplayer.minScore}>
-                                            <input type="range" min="1" max="100" value={this.state.multiplayer.minScore} className="slider" id="multiplayer-min-score" onChange={this.sliderHandler} />
-                                        </div>
-                                    </div>
-                                    <div className='col s6'>
-                                        <h6>Max Score</h6>
-                                        <div id='max-rank'>{this.state.multiplayer.maxScore}</div>
-                                        <div tooltip={this.state.multiplayer.maxScore}>
-                                            <input type="range" min="1" max="100" value={this.state.multiplayer.maxScore} className="slider" id="multiplayer-max-score" onChange={this.sliderHandler} />
-                                        </div>
-                                    </div>
-                                </div>
-                                <br />
-                            </div>
                             <br />
                         </div>
-                    </div>
-                    <div className='col s6 padded'>
-                        <div className="padded wrapper card blue-grey darken-1 z-depth-5" id="singleplayer_container">
-                            <h3 id='leaderboard_title'> Single player </h3>
-                            <h5 id='active_engine'> Engine: Stockfish 5</h5>
-                            <br />
-                            <table id='leaderboard_table' className='striped'>
-                                <tbody>
-                                    <tr>{this.renderTableHeader()}</tr>
-                                    {this.renderTableData("single")}
-                                </tbody>
-                            </table>
-                            <div className='filter-wrapper center leaderboard-text-filter'>
-                                <div className='row'>
-                                    <div className='col s6'>
-                                        <h4>Filter</h4>
-                                        <input id='singleplayer-username-filter' type='text' className='center white-text' value={this.state.singleplayer.usernameFilter} placeholder='Filter by username' onChange={this.usernameHandler}></input>
-                                    </div>
-                                    <div className='col s6'>
-                                        <h4>Sort By</h4>
-                                    </div>
-                                </div>
-                                <br />
-                                <h4>Rank Range</h4>
-                                <div className="row">
-                                    <div className='col s6'>
-                                        <h6>Min Rank</h6>
-                                        <div>{this.state.singleplayer.minRank}</div>
-                                        <div tooltip={this.state.singleplayer.minRank}>
-                                            <input type="range" min="1" max="100" value={this.state.singleplayer.minRank} className="slider" id="singleplayer-min-rank" onChange={this.sliderHandler} />
-                                        </div>
-                                    </div>
-                                    <div className='col s6'>
-                                        <h6>Max Rank</h6>
-                                        <div>{this.state.singleplayer.maxRank}</div>
-                                        <div tooltip={this.state.singleplayer.maxRank}>
-                                            <input type="range" min="1" max="100" value={this.state.singleplayer.maxRank} className="slider" id="singleplayer-max-rank" onChange={this.sliderHandler} />
-                                        </div>
-                                    </div>
-                                </div>
-                                <br />
-                                <h4>Score Range</h4>
-                                <div className="row">
-                                    <div className='col s6'>
-                                        <h6>Min Score</h6>
-                                        <div>{this.state.singleplayer.minScore}</div>
-                                        <div tooltip={this.state.singleplayer.minScore}>
-                                            <input type="range" min="1" max="100" value={this.state.singleplayer.minScore} className="slider" id="singleplayer-min-score" onChange={this.sliderHandler} />
-                                        </div>
-                                    </div>
-                                    <div className='col s6'>
-                                        <h6>Max Score</h6>
-                                        <div>{this.state.singleplayer.maxScore}</div>
-                                        <div tooltip={this.state.singleplayer.maxScore}>
-                                            <input type="range" min="1" max="100" value={this.state.singleplayer.maxScore} className="slider" id="singleplayer-max-score" onChange={this.sliderHandler} />
-                                        </div>
-                                    </div>
-                                </div>
-                                <br />
-                            </div>
-                            <br />
-                        </div>
-
                     </div>
                 </div>
             </div>

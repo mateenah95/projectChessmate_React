@@ -18,8 +18,9 @@ let orientation = 'white';
 let move_ = '';
 let position = 'start';
 let game_id = "";
-const time = 5 * 60;
+const time = 1 * 60;
 const testing = true;
+let game_over = false;
 
 class Game extends Component {
     static propTypes = { children: PropTypes.func };
@@ -53,9 +54,13 @@ class Game extends Component {
         // }).catch(error => {
         //     console.error(error)
         // });
-        game_time.init_clocks(time);
+        game_time.init_clocks(time, game_id);
         game_time.start_w();
         this.game = new Chess();
+        socket.on('id', function (id) {
+            console.log("id received: " + id);
+            game_id = id;
+        }.bind(this));
         socket.on('fen', function (fen) {
             position = fen;
             this.updateBoard();
@@ -63,6 +68,11 @@ class Game extends Component {
         socket.on('move', function (move) {
             move_ = move;
             this.updateBoard();
+
+            const history = this.state.history;
+            history.push(move);
+            game_moves.updateMoves(history);
+
         }.bind(this));
         socket.on('side', function (side) {
             console.log(side);
@@ -73,8 +83,20 @@ class Game extends Component {
                 orientation = 'black';
             }
             this.updateBoard();
-            game_time.init_clocks(time);
-            game_time.start_w();
+        }.bind(this));
+        socket.on('time', function (time) {
+            if (!game_over) {
+                game_time.set_w(time[0]);
+                game_time.set_b(time[1]);
+
+                if (this.game.turn() === 'b') {
+                    game_time.start_b();
+                    game_time.stop_w();
+                } else if (this.game.turn() === 'w') {
+                    game_time.start_w();
+                    game_time.stop_b();
+                }
+            }
         }.bind(this));
     }
 
@@ -130,29 +152,8 @@ class Game extends Component {
             history: this.game.history({ verbose: true }),
             squareStyles: squareStyling({ pieceSquare, history })
         }));
-        socket.emit('move', move);
-        socket.emit('fen', this.game.fen());
 
-        const history = this.state.history;
-        history.push(move);
-        game_moves.updateMoves(history);
-        if (this.game.turn() === 'b') {
-            game_time.start_b();
-            game_time.stop_w();
-        } else if (this.game.turn() === 'w') {
-            game_time.start_w();
-            game_time.stop_b();
-        }
-
-        if (this.game.in_draw() || this.game.in_stalemate()) {
-            console.log("draw")
-        }
-        else if (this.game.game_over() && this.game.turn() === 'b') {
-            console.log("white won");
-        }
-        else if (this.game.game_over() && this.game.turn() === 'w') {
-            console.log("white won");
-        }
+        this.handle_move(move);
     };
 
     onMouseOverSquare = square => {
@@ -196,14 +197,40 @@ class Game extends Component {
             pieceSquare: ""
         });
 
+        this.handle_move(move);
 
+
+    };
+
+    handle_move(move) {
         socket.emit('move', move);
         socket.emit('fen', this.game.fen());
+        if (game_time.whiteTimer.getStatus() === "stopped") {
+            alert("Black won on time");
 
-        this.removeHighlightSquare();
-        const history = this.state.history;
-        history.push(move);
-        game_moves.updateMoves(history);
+            Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
+                result: "b"
+            }).then(response => {
+
+            }).catch(error => {
+                console.error(error)
+            });
+            game_over = true;
+        } else if (game_time.blackTimer.getStatus() === "stopped") {
+            alert("White won on time");
+
+            Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
+                result: "w"
+            }).then(response => {
+
+            }).catch(error => {
+                console.error(error)
+            });
+            game_over = true;
+        } else {
+            socket.emit('time', [game_time.get_w(), game_time.get_b()]);
+        }
+
         if (this.game.turn() === 'b') {
             game_time.start_b();
             game_time.stop_w();
@@ -211,18 +238,45 @@ class Game extends Component {
             game_time.start_w();
             game_time.stop_b();
         }
+        this.removeHighlightSquare();
+        const history = this.state.history;
+        history.push(move);
+        game_moves.updateMoves(history);
 
         if (this.game.in_draw() || this.game.in_stalemate()) {
-            console.log("draw")
+            alert("Game Drawn");
+
+            Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
+                result: "draw"
+            }).then(response => {
+                console.log(response)
+            }).catch(error => {
+                console.error(error)
+            });
         }
         else if (this.game.game_over() && this.game.turn() === 'b') {
-            console.log("white won");
+            alert("White won by checkmate");
+
+            Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
+                result: "w"
+            }).then(response => {
+
+            }).catch(error => {
+                console.error(error)
+            });
         }
         else if (this.game.game_over() && this.game.turn() === 'w') {
-            console.log("white won");
-        }
+            alert("Black won by checkmate");
 
-    };
+            Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
+                result: "b"
+            }).then(response => {
+
+            }).catch(error => {
+                console.error(error)
+            });
+        }
+    }
 
     onSquareRightClick = square => {
         // Axios.post('http://localhost:5000/game/join/' + game_id, {
@@ -233,7 +287,7 @@ class Game extends Component {
         // }).catch(error => {
         //     console.error(error)
         // });
-        game_time.start_w();
+        // game_time.start_w();
 
     };
 
