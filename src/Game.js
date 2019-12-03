@@ -19,7 +19,7 @@ let move_ = '';
 let position = 'start';
 let game_id = "";
 const time = 1 * 60;
-const testing = false;
+const testing = true;
 let game_over = false;
 
 class Game extends Component {
