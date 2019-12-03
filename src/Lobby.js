@@ -146,6 +146,7 @@ class Lobby extends React.Component {
                                 <tr key={game._id}>
                                     <td>{game._id.substring(game._id.length - 4, game._id.length)}</td>
                                     <td><em>{game.player1}</em></td>
+                                    <td><em>{game.player2}</em></td>
                                     <td>{game.player2 ? <div className='inprogress'></div> : <div className='available'></div>}</td>
                                     <td>{game.player2 ? <a className="waves-effect waves-light btn" disabled>Join</a> : <a gameid={game._id} onClick={this.joinGame} className="waves-effect waves-light btn" >Join</a>}</td>
 
