@@ -220,8 +220,7 @@ class Game extends Component {
             Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
                 result: "b"
             }).then(response => {
-                console.log('CHECK3')
-                this.backToLobby();
+
             }).catch(error => {
                 console.error(error)
             });
@@ -232,7 +231,7 @@ class Game extends Component {
             Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
                 result: "w"
             }).then(response => {
-                this.backToLobby();
+
             }).catch(error => {
                 console.error(error)
             });
@@ -260,7 +259,7 @@ class Game extends Component {
                 result: "draw"
             }).then(response => {
                 console.log(response)
-                this.backToLobby();
+
             }).catch(error => {
                 console.error(error)
             });
@@ -271,7 +270,7 @@ class Game extends Component {
             Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
                 result: "w"
             }).then(response => {
-                this.backToLobby();
+
             }).catch(error => {
                 console.error(error)
             });
@@ -282,11 +281,12 @@ class Game extends Component {
             Axios.post('https://chessmate-api.herokuapp.com/game/' + game_id + '/result', {
                 result: "b"
             }).then(response => {
-                this.backToLobby();
+
             }).catch(error => {
                 console.error(error)
             });
         }
+
     }
 
     onSquareRightClick = square => {
