@@ -18,7 +18,7 @@ let orientation = 'white';
 let move_ = '';
 let position = 'start';
 let game_id = "";
-const time = 1 * 15;
+const time = 1 * 60;
 const testing = true;
 let game_over = false;
 
