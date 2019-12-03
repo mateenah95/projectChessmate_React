@@ -23,7 +23,6 @@ class Lobby extends React.Component {
         this.runFilters = this.runFilters.bind(this);
         this.updateHostFilter = this.updateHostFilter.bind(this);
         this.updateSortOption = this.updateSortOption.bind(this);
-        this.updateLobby = this.updateLobby.bind(this);
         this.joinGame = this.joinGame.bind(this);
 
         setInterval(this.runFilters, 1000);
