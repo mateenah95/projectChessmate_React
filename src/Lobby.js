@@ -29,11 +29,6 @@ class Lobby extends React.Component {
         setInterval(this.runFilters, 1000);
     }
 
-    updateLobby() {
-        this.setState({ games_to_show: [...this.props.lobby] })
-    }
-
-
     updateHostFilter(e) {
         this.setState({ host_filter: e.target.value.trim() });
         setTimeout(this.runFilters, 100);
@@ -141,7 +136,8 @@ class Lobby extends React.Component {
                         <thead>
                             <tr>
                                 <th>Game #</th>
-                                <th>Host</th>
+                                <th>Player 1 (Host)</th>
+                                <th>Player 2</th>
                                 <th>Availability</th>
                                 <th>Option</th>
                             </tr>
@@ -149,7 +145,7 @@ class Lobby extends React.Component {
                         <tbody>
                             {this.state.games_to_show.map(game => (
                                 <tr key={game._id}>
-                                    <td>{game._id}</td>
+                                    <td>{game._id.substring(game._id.length - 4, game._id.length)}</td>
                                     <td><em>{game.player1}</em></td>
                                     <td>{game.player2 ? <div className='inprogress'></div> : <div className='available'></div>}</td>
                                     <td>{game.player2 ? <a className="waves-effect waves-light btn" disabled>Join</a> : <a gameid={game._id} onClick={this.joinGame} className="waves-effect waves-light btn" >Join</a>}</td>

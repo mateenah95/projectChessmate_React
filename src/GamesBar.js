@@ -13,7 +13,7 @@ class GamesBar extends React.Component {
     render() {
         return (
             <div>
-                <Lobby username={this.props.username} lobby={this.props.lobby} />
+                <Lobby username={this.props.username} />
                 <NewGamesBar username={this.props.username} />
             </div>
         )

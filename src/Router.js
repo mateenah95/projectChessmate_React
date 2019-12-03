@@ -1,8 +1,10 @@
 import React from 'react';
 
-import { BrowserRouter, 
-         Switch,
-         Route } from 'react-router-dom';
+import {
+    BrowserRouter,
+    Switch,
+    Route
+} from 'react-router-dom';
 
 import NavBar from './NavBar';
 import HomePage from './HomePage';
@@ -10,7 +12,7 @@ import Login from './Login';
 import Signup from './Signup';
 import Lobby from './LobbyPage';
 import Game from './GamePage';
-import Leaderboard from './Leaderboard'; 
+import Leaderboard from './Leaderboard';
 import ErrorPage from './ErrorPage';
 import ProfilePage from './Profile';
 import AdminPage from './Admin';
@@ -34,7 +36,7 @@ const Router = (props) => {
                 <Route path='/admin' render={() => <AdminPage user={user} login={login} logout={logout} />} />
                 <Route path='/login' render={() => <Login user={user} login={login} logout={logout} />} />
                 <Route path='/signup' render={() => <Signup user={user} logout={logout} />} />
-                <Route path='/lobby' render={() => <Lobby user={user} lobby={lobby} logout={logout} />} />
+                <Route path='/lobby' render={() => <Lobby user={user} logout={logout} />} />
                 <Route path='/leaderboard' render={() => <Leaderboard user={user} logout={logout} />} />
                 <Route path='/game' render={() => <Game user={user} logout={logout} />} />
                 <Route path='/profile' render={() => <ProfilePage user={user} logout={logout} addFriend={addFriend}

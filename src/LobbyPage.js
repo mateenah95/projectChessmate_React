@@ -20,7 +20,7 @@ class LobbyPage extends React.Component {
                     </div>
 
                     <div className='col s6'>
-                        <GameBar username={this.props.user ? this.props.user.username : ''} lobby={this.props.lobby} />
+                        <GameBar username={this.props.user ? this.props.user.username : ''} />
                     </div>
                 </div>
             </div>

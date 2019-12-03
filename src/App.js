@@ -103,9 +103,9 @@ class App extends React.Component {
         this.resetMulti = this.resetMulti.bind(this);
         this.resetSolo = this.resetSolo.bind(this);
         this.changeName = this.changeName.bind(this);
-        this.updateLobby = this.updateLobby.bind(this);
+        this.updateUser = this.updateUser.bind(this);
 
-        setInterval(this.updateLobby, 1000);
+        setInterval(this.updateUser, 1000);
     }
 
     componentWillMount() {
@@ -117,10 +117,19 @@ class App extends React.Component {
 
     }
 
-    updateLobby() {
-        Axios.get('https://chessmate-api.herokuapp.com/games')
-            .then(response => this.setState({ lobby: [...response.data] }))
-            .catch(error => this.setState({ lobby: [] }))
+    updateUser() {
+        if (this.state.user) {
+            Axios.post('http://localhost:5000/player', { myid: this.state.user._id, name: this.state.user.username })
+                .then(response => {
+                    console.log(response.data)
+                    this.setState({ user: response.data })
+                })
+                .catch(error => { })
+            console.log('UPDATED');
+        }
+        else {
+            console.log('NO USER LOGGED IN')
+        }
     }
 
     login(admn) {
