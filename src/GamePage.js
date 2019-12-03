@@ -7,12 +7,13 @@ import GameLostPieces from './GameLostPieces';
 
 //import './GamePage.css';
 
-class GamePage extends React.Component {
-    constructor(props) {
+class GamePage extends React.Component{
+    constructor(props){
         super(props);
+
     }
 
-    render() {
+    render(){
         return (
             <div>
                 <br />
@@ -21,13 +22,13 @@ class GamePage extends React.Component {
                         <Game />
                     </div>
                     <div className='col s6'>
-                        <GameTime user={this.props.user} />
+                        <GameTime user={this.props.user}/>
                     </div>
                     {/*<div className='col s6'>*/}
-                    {/*<GameLostPieces user={this.props.user}/>*/}
+                        {/*<GameLostPieces user={this.props.user}/>*/}
                     {/*</div>*/}
                     <div className='col s6'>
-                        <GameMoves user={this.props.user} />
+                        <GameMoves user={this.props.user}/>
                     </div>
                 </div>
             </div>

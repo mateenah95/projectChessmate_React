@@ -7,7 +7,7 @@ import GameTime from "./GameTime"
 import GameMoves from "./GameMoves"
 
 const io = require('socket.io-client');
-const socket = io.connect('https://chessmate-api.herokuapp.com/');
+const socket = io.connect('http://localhost:5001/');
 
 const game_time = new GameTime();
 const game_moves = new GameMoves();
@@ -19,7 +19,7 @@ let move_ = '';
 let position = 'start';
 let game_id = "";
 const time = 1 * 60;
-const testing = true;
+const testing = false;
 let game_over = false;
 
 class Game extends Component {
@@ -57,25 +57,23 @@ class Game extends Component {
         game_time.init_clocks(time, game_id);
         game_time.start_w();
         this.game = new Chess();
-
         socket.on('id', function (id) {
             console.log("id received: " + id);
             game_id = id;
         }.bind(this));
-
         socket.on('fen', function (fen) {
             position = fen;
             this.updateBoard();
         }.bind(this));
-
         socket.on('move', function (move) {
             move_ = move;
             this.updateBoard();
+
             const history = this.state.history;
             history.push(move);
             game_moves.updateMoves(history);
-        }.bind(this));
 
+        }.bind(this));
         socket.on('side', function (side) {
             console.log(side);
             side_ = side;
@@ -86,7 +84,6 @@ class Game extends Component {
             }
             this.updateBoard();
         }.bind(this));
-
         socket.on('time', function (time) {
             if (!game_over) {
                 game_time.set_w(time[0]);
@@ -205,12 +202,6 @@ class Game extends Component {
 
     };
 
-    backToLobby() {
-        const lobbyLink = document.getElementById('lobby-lnk');
-        const clickLink = new MouseEvent('click');
-        lobbyLink.dispatchEvent(clickLink);
-    }
-
     handle_move(move) {
         socket.emit('move', move);
         socket.emit('fen', this.game.fen());
@@ -259,7 +250,6 @@ class Game extends Component {
                 result: "draw"
             }).then(response => {
                 console.log(response)
-
             }).catch(error => {
                 console.error(error)
             });
@@ -286,7 +276,6 @@ class Game extends Component {
                 console.error(error)
             });
         }
-
     }
 
     onSquareRightClick = square => {

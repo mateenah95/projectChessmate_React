@@ -33,14 +33,16 @@ const Router = (props) => {
         <BrowserRouter>
             <NavBar user={user} logout={logout} />
             <Switch>
-                <Route path='/admin' render={() => <AdminPage user={user} login={login} logout={logout} />} />
+                <Route path='/admin' render={() => user && user.isAdmin ? <AdminPage user={user} login={login} logout={logout} /> : <HomePage user={user} logout={logout} />} />
                 <Route path='/login' render={() => <Login user={user} login={login} logout={logout} />} />
                 <Route path='/signup' render={() => <Signup user={user} logout={logout} />} />
-                <Route path='/lobby' render={() => <Lobby user={user} logout={logout} />} />
+                <Route path='/lobby' render={() => user ? <Lobby user={user} logout={logout} /> : <HomePage user={user} logout={logout} />} />
                 <Route path='/leaderboard' render={() => <Leaderboard user={user} logout={logout} />} />
-                <Route path='/game' render={() => <Game user={user} logout={logout} />} />
-                <Route path='/profile' render={() => <ProfilePage user={user} logout={logout} addFriend={addFriend}
-                    hideShowHist={hideShowHist} resetMulti={resetMulti} resetSolo={resetSolo} changeName={changeName} />} />
+                <Route path='/game' render={() => user ? <Game user={user} logout={logout} /> : <HomePage user={user} logout={logout} />} />
+                <Route path='/profile' render={() => user ? <ProfilePage user={user} logout={logout} addFriend={addFriend}z
+                    hideShowHist={hideShowHist} resetMulti={resetMulti} resetSolo={resetSolo} changeName={changeName} /> :
+                    <HomePage user={user} logout={logout} />
+                } />
                 <Route path='/' exact render={() => <HomePage user={user} logout={logout} />} />
                 <Route component={ErrorPage} />
             </Switch>

@@ -14,7 +14,7 @@ class NavBar extends React.Component {
                 <div className="nav-wrapper blue-grey darken-1 z-depth-5">
                     <ul id="nav-mobile" className="left hide-on-med-and-down">
                         <li><Link to='/'>Home</Link></li>
-                        {this.props.user && !this.props.user.inGame ? <li><Link id='lobby-lnk' to='/lobby'>Lobby</Link></li> : <li hidden><Link id='lobby-lnk' to='/lobby'>Lobby</Link></li>}
+                        {this.props.user && !this.props.user.inGame ? <li><Link to='/lobby'>Lobby</Link></li> : ""}
                         {this.props.user && this.props.user.inGame ? <li><Link id='game-lnk' to='/game'>Game</Link></li> : <li hidden><Link id='game-lnk' to='/game'>Game</Link></li>}
                         {/* <li><Link to='/lobby'>Lobby</Link></li>
                         <li><Link id='game-lnk' to='/game'>Game</Link></li> */}

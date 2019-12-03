@@ -119,7 +119,7 @@ class App extends React.Component {
 
     updateUser() {
         if (this.state.user) {
-            Axios.post('http://localhost:5000/player', { myid: this.state.user._id, name: this.state.user.username })
+            Axios.post('https://chessmate-api.herokuapp.com/player', { myid: this.state.user._id, id: this.state.user._id })
                 .then(response => {
                     console.log(response.data)
                     this.setState({ user: response.data })
@@ -147,37 +147,23 @@ class App extends React.Component {
     }
 
     addFriend(playerName) {
-        if (!(playerName === this.state.user.username)) {
-            Axios.post('https://chessmate-api.herokuapp.com/player', {
-                myid: this.state.user._id,
-                name: playerName
-            }).then(response => {
-                if ("message" in response.data) {
-                    alert(response.data.message)
-                } else {
-                    //console.log(response.data._id)
-                    Axios.post('https://chessmate-api.herokuapp.com/addFriend', {
-                        myid: this.state.user._id,
-                        id: response.data._id
-                    }).then(response2 => {
-                        if ("message" in response2.data) {
-                            alert(response2.data.message)
-                        } else {
-                            this.setState(state => ({
-                                user: response2.data, lobby: state.lobby
-                            }));
-                        }
-                    })
-                }
-            })
-        } else {
-            alert("can't add yourself")
-        }
+        Axios.post('https://chessmate-api.herokuapp.com/addFriend', {
+            myid: this.state.user._id,
+            name: playerName
+        }).then(response => {
+            if ("message" in response.data) {
+                alert(response.data.message)
+            } else {
+                this.setState(state => ({
+                    user: response.data, lobby: state.lobby
+                }));
+            }
+        })
     }
 
     hideShowHist() {
         const new_hide = !this.state.user.matchHistoryView;
-        Axios.patch('http://localhost:5000/matchHist', {
+        Axios.patch('https://chessmate-api.herokuapp.com/matchHist', {
             myid: this.state.user._id,
             hide: new_hide
         }).then(response => {
@@ -197,7 +183,7 @@ class App extends React.Component {
     changeName(newName) {
         let flag = false
         if (newName) {
-            Axios.patch('http://localhost:5000/changeName', {
+            Axios.patch('https://chessmate-api.herokuapp.com/changeName', {
                 myid: this.state.user._id,
                 username: newName
             }).then(response => {
@@ -209,7 +195,7 @@ class App extends React.Component {
                     }));
                     if (!this.state.user.badges.includes(Crown)) {
                         console.log("should add crown")
-                        Axios.patch('http://localhost:5000/addBadge', {
+                        Axios.patch('https://chessmate-api.herokuapp.com/addBadge', {
                             myid: this.state.user._id,
                             badge: Crown
                         }).then(response => {
@@ -234,7 +220,7 @@ class App extends React.Component {
     }
 
     resetSolo() {
-        Axios.patch('http://localhost:5000/resetStats', {
+        Axios.patch('https://chessmate-api.herokuapp.com/resetStats', {
             myid: this.state.user._id,
             solo: true
         }).then(response => {
@@ -252,7 +238,7 @@ class App extends React.Component {
     }
 
     resetMulti() {
-        Axios.patch('http://localhost:5000/resetStats', {
+        Axios.patch('https://chessmate-api.herokuapp.com/resetStats', {
             myid: this.state.user._id,
             solo: false
         }).then(response => {

@@ -149,7 +149,6 @@ class Lobby extends React.Component {
                                     <td><em>{game.player2}</em></td>
                                     <td>{game.player2 ? <div className='inprogress'></div> : <div className='available'></div>}</td>
                                     <td>{game.player2 ? <a className="waves-effect waves-light btn" disabled>Join</a> : <a gameid={game._id} onClick={this.joinGame} className="waves-effect waves-light btn" >Join</a>}</td>
-
                                 </tr>
                             ))}
                         </tbody>
