@@ -7,7 +7,7 @@ import GameTime from "./GameTime"
 import GameMoves from "./GameMoves"
 
 const io = require('socket.io-client');
-const socket = io.connect('https://chessmate-csc309.herokuapp.com/');
+const socket = io.connect('https://chessmate-api.herokuapp.com/');
 
 const game_time = new GameTime();
 const game_moves = new GameMoves();
